@@ -6,87 +6,522 @@
     <title>MLB DFS Lineup Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --transition: all 0.2s ease; }
+        :root {
+            --transition: all 0.2s ease;
+            --low-rank-light: #d1fae5;
+            --mid-rank-light: #fef3c7;
+            --high-rank-light: #fee2e2;
+            --low-rank-dark: #064e3b;
+            --mid-rank-dark: #713f12;
+            --high-rank-dark: #7f1d1d;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; transition: var(--transition);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: var(--transition);
         }
         body[data-theme="light"] {
-            --bg-color: #f8fafc; --text-color: #1e293b; --card-bg: #ffffff;
-            --border-color: #e2e8f0; --button-bg: #334155; --button-text: #ffffff;
-            --button-hover: #1e293b; --input-bg: #f1f5f9; --table-head-bg: #f1f5f9;
-            --table-even-bg: #f8fafc; --shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --button-bg: #334155;
+            --button-text: #ffffff;
+            --button-hover: #1e293b;
+            --input-bg: #f1f5f9;
+            --table-head-bg: #f1f5f9;
+            --table-even-bg: #f8fafc;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --low-rank: var(--low-rank-light);
+            --mid-rank: var(--mid-rank-light);
+            --high-rank: var(--high-rank-light);
         }
         body[data-theme="dark"] {
-            --bg-color: #0f172a; --text-color: #e2e8f0; --card-bg: #1e293b;
-            --border-color: #334155; --button-bg: #475569; --button-text: #e2e8f0;
-            --button-hover: #64748b; --input-bg: #1e293b; --table-head-bg: #1e293b;
-            --table-even-bg: #0f172a; --shadow: 0 2px 4px rgba(0,0,0,0.2);
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --button-bg: #475569;
+            --button-text: #e2e8f0;
+            --button-hover: #64748b;
+            --input-bg: #1e293b;
+            --table-head-bg: #1e293b;
+            --table-even-bg: #0f172a;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --low-rank: var(--low-rank-dark);
+            --mid-rank: var(--mid-rank-dark);
+            --high-rank: var(--high-rank-dark);
         }
-        body { background-color: var(--bg-color); color: var(--text-color); }
-        h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0; }
-        .info-icon { cursor: pointer; margin-left: 0.5rem; font-size: 1rem; }
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); }
-        .modal-content { background: var(--card-bg); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); width: 80%; max-width: 800px; border-radius: 8px; }
-        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .description, .filter-container, .table-container {
-            width: 90%; max-width: 1000px; background: var(--card-bg); padding: 1rem; border-radius: 8px; margin: 1rem 0; box-shadow: var(--shadow);
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
-        .filter-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 1.5rem; }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        .info-icon {
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-size: 1rem;
+            color: var(--button-bg);
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+        }
+        .info-icon:hover {
+            background: var(--button-hover);
+            color: var(--button-text);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        .close {
+            color: var(--text-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: var(--button-hover);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .description {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .filter-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+        }
+        .filter-container > div {
+            display: flex;
+            flex-direction: column;
+        }
+        .filter-container label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .dropdown-container {
+            position: relative;
+        }
         .dropdown-button {
-            padding: 0.75rem; background: var(--input-bg); border: 1px solid var(--border-color);
-            border-radius: 6px; cursor: pointer; width: 100%; text-align: left;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dropdown-button:hover {
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
+        .dropdown-button::after {
+            content: '▼';
+            font-size: 0.7rem;
         }
         .dropdown-menu {
-            display: none; position: absolute; background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 1rem; z-index: 10;
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 10;
+            padding: 1rem;
+            box-shadow: var(--shadow);
         }
-        .dropdown-menu.show { display: block; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 0.5rem; border: 1px solid var(--border-color); text-align: center; }
-        th { background: var(--table-head-bg); cursor: pointer; }
-        th:hover { background: var(--button-bg); color: var(--button-text); }
-        tr:nth-child(even) { background: var(--table-even-bg); }
+        .dropdown-menu.show {
+            display: block;
+        }
+        .dropdown-menu label {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+        .dropdown-menu label:hover {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .dropdown-menu input[type="checkbox"],
+        .dropdown-menu input[type="radio"] {
+            margin-right: 0.5rem;
+        }
+        #player-search {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .table-container {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin: 1rem auto;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            padding: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        th {
+            background: var(--table-head-bg);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        th:hover {
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
+        th::after {
+            content: '';
+            margin-left: 0.3rem;
+        }
+        th.asc::after {
+            content: '↑';
+        }
+        th.desc::after {
+            content: '↓';
+        }
+        tr:nth-child(even) {
+            background: var(--table-even-bg);
+        }
+        .ticker {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .ticker button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 4px;
+        }
+        .ticker span {
+            min-width: 40px;
+            text-align: center;
+        }
         .dark-mode-container {
-            position: fixed; top: 0.5rem; right: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
         }
-        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
         .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc; transition: .4s; border-radius: 34px;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
         }
         .slider:before {
-            position: absolute; content: ""; height: 12px; width: 12px;
-            left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
         }
-        input:checked + .slider { background-color: #2196F3; }
-        input:checked + .slider:before { transform: translateX(14px); }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .loading-overlay.active {
+            display: block;
+        }
+        .loading {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+        .loading.hidden {
+            display: none;
+        }
+        .slider-container input[type="range"] {
+            width: 100%;
+            accent-color: var(--button-bg);
+        }
+        .input-container input[type="number"] {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            width: 100%;
+        }
         button {
-            padding: 0.5rem; background: var(--button-bg); color: var(--button-text);
-            border: none; border-radius: 6px; cursor: pointer;
+            padding: 0.5rem;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
         }
-        button:hover { background: var(--button-hover); }
-        .editable { cursor: pointer; }
-        td.player-cell { cursor: pointer; }
-        td.player-cell:hover { background: var(--button-hover); color: var(--button-text); }
-        tr.deselected { opacity: 0.5; }
+        button:hover {
+            background: var(--button-hover);
+        }
+        table input[type="number"] {
+            width: 50px;
+            padding: 2px;
+            font-size: 0.8rem;
+        }
+        .editable {
+            cursor: pointer;
+        }
+        select {
+            padding: 0.5rem;
+            background: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .tab-container button {
+            padding: 0.5rem 1rem;
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .tab-container button:hover {
+            background: var(--button-hover);
+        }
+        .dual-slider-container {
+            position: relative;
+            width: 100%;
+            height: 20px;
+        }
+        .dual-slider-container input[type="range"] {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            margin: 0;
+            pointer-events: none;
+            accent-color: var(--button-bg);
+        }
+        .dual-slider-container input[type="range"]::-webkit-slider-thumb {
+            pointer-events: all;
+            z-index: 10;
+        }
+        .dual-slider-container input[type="range"]::-moz-range-thumb {
+            pointer-events: all;
+            z-index: 10;
+        }
+        .dual-slider-container .range-track {
+            position: absolute;
+            top: 8px;
+            height: 4px;
+            background: var(--button-bg);
+            z-index: 5;
+        }
+        td.player-cell {
+            cursor: pointer;
+        }
+        td.player-cell:hover {
+            background: var(--button-hover);
+            color: var(--button-text);
+        }
+        tr.deselected {
+            opacity: 0.5;
+            background-color: var(--high-rank);
+        }
+        .deselect-icon {
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            margin-right: 0.5rem;
+        }
+        .deselect-icon:hover {
+            background: var(--button-hover);
+            color: var(--button-text);
+        }
+        .exposure-filter {
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body data-theme="light">
     <h2>MLB DFS Lineup Builder <span class="info-icon" onclick="openModal()">ℹ️</span></h2>
-
     <div id="infoModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <h2>MLB DFS Lineup Builder</h2>
-            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings MLB lineups.</p>
-            <p>Supports Classic and Showdown slates.</p>
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>How to Use the MLB DFS Lineup Builder</h2>
+            <p>This tool is designed to help you analyze MLB player data and generate optimal Daily Fantasy Sports (DFS) lineups for DraftKings. It supports both Classic and Showdown slates. Follow these steps to use it effectively:</p>
+            <ol>
+                <li><strong>Select a Slate:</strong> Start by choosing a slate from the "Slate" dropdown. Slates are loaded and the earliest available slate is selected by default. Options include Classic (full slate) or Showdown (single game) formats. Note: For Showdown slates, the lineup is CPT (1.5x points) + 5 UTIL; for Classic, it is 2P + C + 1B + 2B + 3B + SS + 3 OF + UTIL.</li>
+                <li><strong>Filter Players:</strong> Use the "Search Player," "Position," and "Team" dropdowns to filter the player pool. You can select multiple positions or teams. The table below will update to show only matching players.</li>
+                <li><strong>Adjust Global Settings:</strong>
+                    <ul>
+                        <li><strong>Max Player Exposure (%):</strong> Set the maximum percentage of lineups any single player can appear in (default 100%).</li>
+                        <li><strong>Lineup Salary Range ($):</strong> Adjust the dual slider to set the minimum and maximum total salary for generated lineups ($50,000 cap for both Classic and Showdown).</li>
+                        <li><strong>Total Projected Ownership Range (%):</strong> Adjust the dual slider to set the minimum and maximum total projected ownership percentage for generated lineups.</li>
+                        <li><strong>Number of Lineups:</strong> Specify how many lineups to generate (up to 500).</li>
+                        <li><strong>Only include players with Projected FP > 0:</strong> Check this to exclude players with zero projected fantasy points.</li>
+                    </ul>
+                </li>
+                <li><strong>Customize Player Projections and Exposures:</strong> In the player table:
+                    <ul>
+                        <li>Double-click on a player's "Projected FP" to edit their projection. For Captain slots in Showdown, this adjusts the base projection (multiplied by 1.5 internally).</li>
+                        <li>Set per-player "Min Exposure" and "Max Exposure" percentages in the table columns.</li>
+                    </ul>
+                </li>
+                <li><strong>Set Stacks and Groups:</strong>
+                    <ul>
+                        <li>Click "Configure Stacks" to open the stack settings modal.</li>
+                        <li>For stacks, select a "Stack Captain/CPT" and a "Stack Teammate" (hitter from the same team), and set the percentage of builds to include this stack.</li>
+                        <li>For groups, add rules by selecting "At Least" or "At Most", the number, select players, optional "When lineups include" player, and percentage of builds, then add to the list.</li>
+                    </ul>
+                </li>
+                <li><strong>Generate Lineups:</strong> Click "Run" to optimize and generate lineups using linear programming. The tool maximizes projected points while respecting salary, ownership, positions, exposures, stacks, and group constraints.</li>
+                <li><strong>View and Download Results:</strong> Generated lineups appear in a table below. For Showdown: CPT + 5 UTIL; for Classic: P, P, C, 1B, 2B, 3B, SS, OF, OF, OF, UTIL. Download as CSV for easy import into DraftKings. A second table shows the desired vs. actual exposure and stack inclusion.</li>
+                <li><strong>Tips:</strong>
+                    <ul>
+                        <li>The tool adds randomness (up to ±50%) to projections for diversity and increases it if constraints are hard to meet.</li>
+                        <li>If min exposures, stacks, or group constraints aren't met, an alert will show with details.</li>
+                        <li>Toggle Dark Mode in the top-right for better visibility.</li>
+                    </ul>
+                </li>
+            </ol>
         </div>
     </div>
-
+    <div class="description">
+        This tool helps you analyze MLB player data and generate optimal fantasy baseball lineups for DraftKings. Use the filters to select teams, positions, and more. Adjust settings like salary range ($50,000 cap), total projected ownership range, exposure limits, and number of lineups, then click 'Run' to create lineups based on projected fantasy points, salary, and ownership constraints. Click table headers to sort data. For Showdown slates, lineups include 1 Captain (1.5x points) and 5 UTIL players; for Classic slates: 2 Pitchers + C + 1B + 2B + 3B + SS + 3 OF + UTIL. You can define stacks (Captain/CPT + Teammate from same team) and groups for a specified percentage of builds. Data is from your CHEAT SHEET sheet.
+    </div>
     <div class="dark-mode-container">
         <span>Dark Mode</span>
         <label class="switch">
@@ -94,126 +529,1539 @@
             <span class="slider"></span>
         </label>
     </div>
-
-    <div class="description">
-        MLB DFS Lineup Builder — Powered by your CHEAT SHEET data.<br>
-        Select slate, filter players, adjust settings, then click <strong>Run</strong>.
-    </div>
-
+    <div class="loading-overlay" id="loadingOverlay"></div>
+    <div class="loading" id="loadingMessage">Loading data...</div>
     <div class="filter-container">
         <div>
-            <label>Slate:</label>
-            <button class="dropdown-button" id="slateDropdown" onclick="toggleDropdown('slateMenu')">Select Slate</button>
-            <div id="slateMenu" class="dropdown-menu"></div>
+            <label for="playerSearchDropdown">Search Player: </label>
+            <div class="dropdown-container">
+                <button class="dropdown-button" id="playerSearchDropdown" onclick="toggleDropdown('playerSearchMenu')">Select Players</button>
+                <div id="playerSearchMenu" class="dropdown-menu">
+                    <input type="text" id="player-search" placeholder="Search player..." oninput="filterPlayersSearch()">
+                    <div id="playerList"></div>
+                </div>
+            </div>
         </div>
         <div>
-            <label>Position:</label>
-            <button class="dropdown-button" id="positionDropdown" onclick="toggleDropdown('positionMenu')">Select Positions</button>
-            <div id="positionMenu" class="dropdown-menu"></div>
+            <label for="positionDropdown">Position: </label>
+            <div class="dropdown-container">
+                <button class="dropdown-button" id="positionDropdown" onclick="toggleDropdown('positionMenu')">Select Positions</button>
+                <div id="positionMenu" class="dropdown-menu">
+                    <label><input type="checkbox" value="P" onchange="updatePositions()"> P</label>
+                    <label><input type="checkbox" value="C" onchange="updatePositions()"> C</label>
+                    <label><input type="checkbox" value="1B" onchange="updatePositions()"> 1B</label>
+                    <label><input type="checkbox" value="2B" onchange="updatePositions()"> 2B</label>
+                    <label><input type="checkbox" value="3B" onchange="updatePositions()"> 3B</label>
+                    <label><input type="checkbox" value="SS" onchange="updatePositions()"> SS</label>
+                    <label><input type="checkbox" value="OF" onchange="updatePositions()"> OF</label>
+                    <label><input type="checkbox" value="UTIL" onchange="updatePositions()"> UTIL</label>
+                    <label><input type="checkbox" value="CPT" onchange="updatePositions()"> CPT</label>
+                </div>
+            </div>
         </div>
         <div>
-            <label>Team:</label>
-            <button class="dropdown-button" id="teamDropdown" onclick="toggleDropdown('teamMenu')">Select Teams</button>
-            <div id="teamMenu" class="dropdown-menu"></div>
+            <label for="teamDropdown">Team: </label>
+            <div class="dropdown-container">
+                <button class="dropdown-button" id="teamDropdown" onclick="toggleDropdown('teamMenu')">Select Teams</button>
+                <div id="teamMenu" class="dropdown-menu"></div>
+            </div>
         </div>
         <div>
-            <label>Max Exposure (%):</label>
-            <input type="range" id="maxExposureSlider" min="0" max="100" value="100" oninput="updateMaxExposure()">
-            <span id="maxExposureValue">100%</span>
+            <label for="slateDropdown">Slate: </label>
+            <div class="dropdown-container">
+                <button class="dropdown-button" id="slateDropdown" onclick="toggleDropdown('slateMenu')">Select Slate</button>
+                <div id="slateMenu" class="dropdown-menu"></div>
+            </div>
         </div>
         <div>
-            <label>Number of Lineups:</label>
-            <input type="number" id="numLineupsInput" value="20" min="1" max="500" style="width:80px;">
+            <label for="minValueInput">Min Value: </label>
+            <div class="input-container">
+                <input type="number" id="minValueInput" step="0.1" min="0" value="0" oninput="updateMinValue()" style="width: 100px;">
+            </div>
         </div>
         <div>
-            <button onclick="runLineupGeneration()" style="padding:10px 20px;">Run</button>
+            <label for="maxExposureSlider">Max Player Exposure (%): </label>
+            <div class="slider-container">
+                <input type="range" id="maxExposureSlider" min="0" max="100" value="100" oninput="updateMaxExposure()">
+                <span id="maxExposureValue">100%</span>
+            </div>
+        </div>
+        <div>
+            <label>Lineup Salary Range ($): </label>
+            <div class="dual-slider-container">
+                <input type="range" id="minSalarySlider" min="0" max="50000" step="100" value="49500" oninput="updateSalaryRange()">
+                <input type="range" id="maxSalarySlider" min="0" max="50000" step="100" value="50000" oninput="updateSalaryRange()">
+                <div id="salaryRangeTrack" class="range-track"></div>
+            </div>
+            <span id="salaryRangeValue">49500 - 50000</span>
+        </div>
+        <div>
+            <label>Total Projected Ownership Range (%): </label>
+            <div class="dual-slider-container">
+                <input type="range" id="minOwnershipSlider" min="0" max="500" step="1" value="0" oninput="updateOwnershipRange()">
+                <input type="range" id="maxOwnershipSlider" min="0" max="500" step="1" value="500" oninput="updateOwnershipRange()">
+                <div id="ownershipRangeTrack" class="range-track"></div>
+            </div>
+            <span id="ownershipRangeValue">0% - 500%</span>
+        </div>
+        <div>
+            <label for="projectedFPFilter">Only include players with Projected FP > 0</label>
+            <input type="checkbox" id="projectedFPFilter" onchange="updateTable()">
+        </div>
+        <div id="configureStacks" style="display: block;">
+            <button onclick="openStackModal()">Configure Stacks/Groups</button>
+        </div>
+        <div style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+            <div>
+                <label for="numLineupsInput">Number of Lineups: </label>
+                <div class="input-container">
+                    <input type="number" id="numLineupsInput" min="1" max="500" value="20" oninput="updateNumLineups()" style="width: 100px; background-color: #FFFFE0;">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; align-items: center;">
+                <label for="runButton">Click Run to Generate Lineups: </label>
+                <button id="runButton" onclick="runLineupGeneration()">Run</button>
+            </div>
         </div>
     </div>
-
+    <div id="stackModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeStackModal()">&times;</span>
+            <h2>Configure Stacks and Groups</h2>
+            <div class="tab-container">
+                <button onclick="showTab('groups')">Groups</button>
+                <button onclick="showTab('stacks')">Stacks</button>
+            </div>
+            <div id="groupsSection">
+                <h3>Player Groups</h3>
+                <div>
+                    <label for="conditionPlayerDropdown">When lineups include (Optional): </label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="conditionPlayerDropdown" onclick="toggleDropdown('conditionPlayerMenu')">Any Player (Optional)</button>
+                        <div id="conditionPlayerMenu" class="dropdown-menu">
+                            <input type="text" id="condition-player-search" placeholder="Search player..." oninput="filterConditionPlayersSearch()">
+                            <div id="conditionPlayerList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="groupTypeSelect">Group Type: </label>
+                    <select id="groupTypeSelect">
+                        <option value="min">At Least</option>
+                        <option value="exact">Exactly</option>
+                        <option value="max" selected>At Most</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="numGroupPlayers">Number: </label>
+                    <div class="input-container">
+                        <input type="number" id="numGroupPlayers" min="0" max="9" value="1">
+                    </div>
+                </div>
+                <div>
+                    <label for="groupPlayersDropdown">of</label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="groupPlayersDropdown" onclick="toggleDropdown('groupPlayersMenu')">Select Players</button>
+                        <div id="groupPlayersMenu" class="dropdown-menu">
+                            <input type="text" id="group-player-search" placeholder="Search player..." oninput="filterGroupPlayersSearch()">
+                            <div id="groupPlayerList"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="groupPercentageInput">In % of Builds: </label>
+                    <div class="input-container">
+                        <input type="number" id="groupPercentageInput" min="0" max="100" value="100">
+                    </div>
+                </div>
+                <button onclick="resetGroupFields()">Reset</button>
+                <button id="addGroupButton" onclick="addGroup()">Add Group</button>
+                <div id="groupList" style="margin-top: 1rem;"></div>
+            </div>
+            <div id="stacksSection" style="display: none;">
+                <h3>Stack 1</h3>
+                <div>
+                    <label id="stackCaptainLabel" for="stackCaptainDropdown">Stack CPT / P: </label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="stackCaptainDropdown" onclick="toggleDropdown('stackCaptainMenu')">Select Captain / P</button>
+                        <div id="stackCaptainMenu" class="dropdown-menu"></div>
+                    </div>
+                </div>
+                <div>
+                    <label id="stackReceiverLabel" for="stackReceiverDropdown">Stack Teammate (Hitter): </label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="stackReceiverDropdown" onclick="toggleDropdown('stackReceiverMenu')">Select Teammate</button>
+                        <div id="stackReceiverMenu" class="dropdown-menu"></div>
+                    </div>
+                </div>
+                <div>
+                    <label for="stackLineupsInput">Percentage of Builds with Stack (%): </label>
+                    <div class="input-container">
+                        <input type="number" id="stackLineupsInput" min="0" max="100" value="0" oninput="updateStackPercentage()">
+                    </div>
+                </div>
+                <h3>Stack 2</h3>
+                <div>
+                    <label id="stackCaptainLabel2" for="stackCaptainDropdown2">Stack CPT / P 2: </label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="stackCaptainDropdown2" onclick="toggleDropdown('stackCaptainMenu2')">Select Captain / P</button>
+                        <div id="stackCaptainMenu2" class="dropdown-menu"></div>
+                    </div>
+                </div>
+                <div>
+                    <label id="stackReceiverLabel2" for="stackReceiverDropdown2">Stack Teammate 2 (Hitter): </label>
+                    <div class="dropdown-container">
+                        <button class="dropdown-button" id="stackReceiverDropdown2" onclick="toggleDropdown('stackReceiverMenu2')">Select Teammate</button>
+                        <div id="stackReceiverMenu2" class="dropdown-menu"></div>
+                    </div>
+                </div>
+                <div>
+                    <label for="stackLineupsInput2">Percentage of Builds with Stack 2 (%): </label>
+                    <div class="input-container">
+                        <input type="number" id="stackLineupsInput2" min="0" max="100" value="0" oninput="updateStackPercentage2()">
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeStackModal()">Save</button>
+        </div>
+    </div>
     <div class="table-container">
         <table id="dataTable">
             <thead><tr id="tableHeader"></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
-
-    <div class="table-container" id="lineupTableContainer" style="display:none;">
+    <div class="table-container" id="lineupTableContainer" style="display: none;">
         <h2>Generated Lineups</h2>
         <table id="lineupTable">
-            <thead><tr id="lineupHeaderRow"></tr></thead>
+            <thead>
+                <tr id="lineupHeaderRow">
+                    <th>Lineup #</th>
+                    <!-- Headers will be set dynamically -->
+                    <th>Total Salary</th>
+                    <th>Total Projected Points</th>
+                    <th>Total Projected Ownership</th>
+                </tr>
+            </thead>
             <tbody id="lineupTableBody"></tbody>
         </table>
+        <h2>Player Exposure</h2>
+        <div class="exposure-filter">
+            <label for="exposurePositionFilter">Filter by Position: </label>
+            <select id="exposurePositionFilter" onchange="updateExposureTable(this.value)">
+                <option value="">All</option>
+                <option value="P">P</option>
+                <option value="C">C</option>
+                <option value="1B">1B</option>
+                <option value="2B">2B</option>
+                <option value="3B">3B</option>
+                <option value="SS">SS</option>
+                <option value="OF">OF</option>
+                <option value="UTIL">UTIL</option>
+                <option value="CPT">CPT</option>
+            </select>
+        </div>
+        <table id="exposureComparisonTable">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Total Lineups</th>
+                    <th>Exposure (%)</th>
+                    <th>Total Exposure (%)</th>
+                    <th>Min Exposure (%)</th>
+                    <th>Max Exposure (%)</th>
+                    <th>Stack Request</th>
+                    <th>Stack Met (Lineups)</th>
+                </tr>
+            </thead>
+            <tbody id="exposureComparisonBody"></tbody>
+        </table>
+        <div id="generationLog" style="color: red; margin-top: 1rem;"></div>
         <button onclick="downloadLineups()">Download Lineups as CSV</button>
     </div>
-
+    <div id="replacementModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReplacementModal()">&times;</span>
+            <h2>Replace Player</h2>
+            <select id="replacementSelect"></select>
+            <label for="replaceAll"><input type="checkbox" id="replaceAll"> Replace in all lineups</label>
+            <button onclick="applyReplacement()">Replace</button>
+        </div>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/javascript-lp-solver@1.0.0/dist/solver.global.js"></script>
     <script>
         let rawData = [];
         let filteredData = [];
+        let allSlatePlayers = [];
+        let selectedPositions = [];
+        let selectedTeams = [];
+        let selectedPlayers = [];
+        let selectedLockedTeams = [];
         let selectedSlate = null;
+        let maxExposure = 1.0;
+        let minSalary = 49500;
+        let maxSalary = 50000;
+        let minTotalOwnership = 0;
+        let maxTotalOwnership = 500;
+        let numLineups = 20;
         let availableSlates = [];
+        let adjustedProjections = {};
+        let minExposures = {};
+        let maxExposures = {};
+        let generatedLineups = [];
+        let stackCaptain = null;
+        let stackReceiver = null;
+        let stackPercentage = 0;
+        let stackCaptain2 = null;
+        let stackReceiver2 = null;
+        let stackPercentage2 = 0;
+        let groupList = [];
+        let editingIndex = -1;
+        let conditionPlayer = null;
+        let logMessages = [];
+        let sortColumn = null;
+        let sortDirection = 'asc';
+        let lineupSortColumn = null;
+        let lineupSortDirection = 'asc';
+        let replacementLineupIndex = null;
+        let replacementSlot = null;
+        let deselectedPlayers = new Set();
+        let exposurePositionFilter = '';
+        let minValue = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.getElementById('darkModeSwitch').checked = (savedTheme === 'dark');
+            fetchData();
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.dropdown-container')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+                }
+            });
+            document.getElementById('dataTable').addEventListener('dblclick', (event) => {
+                if (event.target.classList.contains('editable')) {
+                    const playerName = event.target.dataset.player;
+                    const currentValue = event.target.textContent;
+                    event.target.innerHTML = `<input type="number" value="${currentValue}" style="width: 100%;">`;
+                    const input = event.target.querySelector('input');
+                    input.focus();
+                    input.addEventListener('blur', () => {
+                        const newValue = parseFloat(input.value) || 0;
+                        updateProjectedFP(playerName, newValue);
+                    });
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            input.blur();
+                        }
+                    });
+                }
+            });
+            document.getElementById('tableHeader').addEventListener('click', (event) => {
+                if (event.target.tagName === 'TH') {
+                    const column = event.target.textContent;
+                    sortTable(column);
+                }
+            });
+            document.getElementById('lineupHeaderRow').addEventListener('click', (event) => {
+                if (event.target.tagName === 'TH') {
+                    const column = event.target.textContent;
+                    sortLineupTable(column);
+                }
+            });
+            document.getElementById('lineupTableBody').addEventListener('click', (event) => {
+                if (event.target.tagName === 'TD' && event.target.classList.contains('player-cell')) {
+                    const lineupIndex = event.target.parentNode.rowIndex - 1;
+                    const slotIndex = event.target.cellIndex - 1;
+                    openReplacementModal(lineupIndex, slotIndex);
+                }
+            });
+            document.getElementById('exposureComparisonBody').addEventListener('change', (event) => {
+                if (event.target.tagName === 'INPUT' && event.target.type === 'number') {
+                    const td = event.target.parentNode;
+                    const tr = td.parentNode;
+                    const playerName = tr.querySelector('td:first-child').textContent;
+                    const type = td.previousSibling ? 'max' : 'min';
+                    updateExposure(playerName, type, event.target.value);
+                }
+            });
+            updateSalaryRangeTrack();
+            updateOwnershipRangeTrack();
+        });
 
         function toggleDarkMode() {
             const body = document.body;
             const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('darkModeSwitch').checked = (newTheme === 'dark');
         }
 
-        function openModal() { document.getElementById('infoModal').style.display = 'block'; }
-        function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
-        function toggleDropdown(menuId) { document.getElementById(menuId).classList.toggle('show'); }
+        function openModal() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        function openStackModal() {
+            const isShowdown = selectedSlate && selectedSlate.includes('Showdown Captain Mode');
+            if (!isShowdown) {
+                document.getElementById('stackCaptainLabel').textContent = 'Stack P: ';
+                document.getElementById('stackReceiverLabel').textContent = 'Stack Teammate (Hitter): ';
+                document.getElementById('stackCaptainLabel2').textContent = 'Stack P 2: ';
+                document.getElementById('stackReceiverLabel2').textContent = 'Stack Teammate 2 (Hitter): ';
+            } else {
+                document.getElementById('stackCaptainLabel').textContent = 'Stack CPT: ';
+                document.getElementById('stackReceiverLabel').textContent = 'Stack Teammate (Hitter): ';
+                document.getElementById('stackCaptainLabel2').textContent = 'Stack CPT 2: ';
+                document.getElementById('stackReceiverLabel2').textContent = 'Stack Teammate 2 (Hitter): ';
+            }
+            document.getElementById('stackModal').style.display = 'block';
+            updateGroupList();
+            populateStackCaptainMenu();
+            populateStackCaptainMenu2();
+            populateConditionPlayersMenu();
+            populateGroupPlayersMenu();
+            showTab('groups');
+        }
+
+        function closeStackModal() {
+            document.getElementById('stackModal').style.display = 'none';
+        }
+
+        function openReplacementModal(lineupIndex, slotIndex) {
+            replacementLineupIndex = lineupIndex;
+            replacementSlot = slotIndex;
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            const lineup = generatedLineups[lineupIndex].lineup;
+            const originalPlayer = isShowdown ? (slotIndex === 0 ? lineup.captain : lineup.util[slotIndex - 1]) : Object.values(lineup)[slotIndex];
+            const lineupPlayers = isShowdown ? [lineup.captain?.name, ...lineup.util.map(f => f.name)] : Object.values(lineup).map(p => p ? p.name : '');
+            const slot = isShowdown ? (slotIndex === 0 ? 'CPT' : 'UTIL') : Object.keys(lineup)[slotIndex];
+            let position = slot;
+            const maxReplacementSalary = originalPlayer.salary + (maxSalary - generatedLineups[lineupIndex].totalSalary);
+            const replacements = filteredData.filter(p => {
+                const eligible = isShowdown ? p.slotType === position : p.positions.some(pos => position === 'UTIL' ? true : position === 'P' ? ['P'].includes(pos) : pos === position);
+                return eligible && p.salary <= maxReplacementSalary && p.displayName !== originalPlayer.name && !lineupPlayers.includes(p.displayName);
+            }).sort((a, b) => b.projectedFP - a.projectedFP);
+            const select = document.getElementById('replacementSelect');
+            select.innerHTML = replacements.map(p => `<option value="${p.displayName}">${p.displayName} (${p.Team}) - $${p.salary} - ${p.projectedFP.toFixed(2)} FP - ${p.ownership.toFixed(2)}%</option>`).join('');
+            document.getElementById('replaceAll').checked = false;
+            document.getElementById('replacementModal').style.display = 'block';
+        }
+
+        function closeReplacementModal() {
+            document.getElementById('replacementModal').style.display = 'none';
+        }
+
+        function applyReplacement() {
+            const select = document.getElementById('replacementSelect');
+            const newPlayerName = select.value;
+            if (!newPlayerName) return;
+            const newPlayer = filteredData.find(p => p.displayName === newPlayerName);
+            if (!newPlayer) return;
+            const replaceAll = document.getElementById('replaceAll').checked;
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            const originalPlayer = isShowdown ? (replacementSlot === 0 ? generatedLineups[replacementLineupIndex].lineup.captain : generatedLineups[replacementLineupIndex].lineup.util[replacementSlot - 1]) : Object.values(generatedLineups[replacementLineupIndex].lineup)[replacementSlot];
+            if (replaceAll) {
+                generatedLineups.forEach((genLineup, idx) => {
+                    const lineup = genLineup.lineup;
+                    let found = false;
+                    if (isShowdown) {
+                        if (lineup.captain && lineup.captain.name === originalPlayer.name) {
+                            const salaryDiff = newPlayer.salary - lineup.captain.salary;
+                            const pointsDiff = newPlayer.projectedFP - lineup.captain.projectedFP;
+                            const ownershipDiff = newPlayer.ownership - lineup.captain.ownership;
+                            lineup.captain = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                            genLineup.totalSalary += salaryDiff;
+                            genLineup.totalPoints += pointsDiff;
+                            genLineup.totalOwnership += ownershipDiff;
+                            found = true;
+                        } else {
+                            lineup.util.forEach((f, fIdx) => {
+                                if (f.name === originalPlayer.name) {
+                                    const salaryDiff = newPlayer.salary - f.salary;
+                                    const pointsDiff = newPlayer.projectedFP - f.projectedFP;
+                                    const ownershipDiff = newPlayer.ownership - f.ownership;
+                                    lineup.util[fIdx] = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                                    genLineup.totalSalary += salaryDiff;
+                                    genLineup.totalPoints += pointsDiff;
+                                    genLineup.totalOwnership += ownershipDiff;
+                                    found = true;
+                                }
+                            });
+                        }
+                    } else {
+                        Object.keys(lineup).forEach(slot => {
+                            if (lineup[slot] && lineup[slot].name === originalPlayer.name) {
+                                const salaryDiff = newPlayer.salary - lineup[slot].salary;
+                                const pointsDiff = newPlayer.projectedFP - lineup[slot].projectedFP;
+                                const ownershipDiff = newPlayer.ownership - lineup[slot].ownership;
+                                lineup[slot] = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                                genLineup.totalSalary += salaryDiff;
+                                genLineup.totalPoints += pointsDiff;
+                                genLineup.totalOwnership += ownershipDiff;
+                                found = true;
+                            }
+                        });
+                    }
+                    if (found) {
+                        logMessages.push(`Replaced in lineup ${idx + 1}`);
+                    }
+                });
+                document.getElementById('generationLog').innerHTML = logMessages.join('<br>');
+            } else {
+                const lineup = generatedLineups[replacementLineupIndex].lineup;
+                const salaryDiff = newPlayer.salary - originalPlayer.salary;
+                const pointsDiff = newPlayer.projectedFP - originalPlayer.projectedFP;
+                const ownershipDiff = newPlayer.ownership - originalPlayer.ownership;
+                if (isShowdown) {
+                    if (replacementSlot === 0) {
+                        lineup.captain = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                    } else {
+                        lineup.util[replacementSlot - 1] = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                    }
+                } else {
+                    const slot = Object.keys(lineup)[replacementSlot];
+                    lineup[slot] = { name: newPlayer.displayName, id: newPlayer.id, baseName: newPlayer.baseName, salary: newPlayer.salary, projectedFP: newPlayer.projectedFP, ownership: newPlayer.ownership };
+                }
+                generatedLineups[replacementLineupIndex].totalSalary += salaryDiff;
+                generatedLineups[replacementLineupIndex].totalPoints += pointsDiff;
+                generatedLineups[replacementLineupIndex].totalOwnership += ownershipDiff;
+            }
+            updateLineupTable();
+            const playerCounts = {};
+            filteredData.forEach(p => playerCounts[p.displayName] = 0);
+            generatedLineups.forEach(lineup => updatePlayerCounts(lineup, playerCounts, isShowdown));
+            updateExposureComparison(playerCounts, [], groupList, isShowdown);
+            closeReplacementModal();
+        }
+
+        window.onclick = function(event) {
+            const infoModal = document.getElementById('infoModal');
+            if (event.target == infoModal) {
+                infoModal.style.display = "none";
+            }
+            const stackModal = document.getElementById('stackModal');
+            if (event.target == stackModal) {
+                stackModal.style.display = "none";
+            }
+            const replacementModal = document.getElementById('replacementModal');
+            if (event.target == replacementModal) {
+                replacementModal.style.display = "none";
+            }
+        }
+
+        function toggleDropdown(menuId) {
+            const menu = document.getElementById(menuId);
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m.id !== menuId) m.classList.remove('show');
+            });
+            menu.classList.toggle('show');
+        }
+
+        function updateDropdownButton(dropdownId, selectedItems, prefix = '') {
+            const button = document.getElementById(dropdownId);
+            if (selectedItems.length === 0) {
+                button.textContent = `Select ${prefix}`;
+            } else if (selectedItems.length <= 2) {
+                button.textContent = selectedItems.join(', ');
+            } else {
+                button.textContent = `${selectedItems.length} ${prefix} selected`;
+            }
+        }
 
         async function fetchData() {
-            console.log("✅ Loading MLB CHEAT SHEET data...");
-            rawData = [
-                {"Player Name":"Logan Gilbert","Position":"SP","Team":"SEA","Role":"Night","Salary":8500,"Projected FP":23.78},
-                {"Player Name":"Yoshinobu Yamamoto","Position":"SP","Team":"LAD","Role":"Night","Salary":9500,"Projected FP":21.58},
-                {"Player Name":"Tanner Bibee","Position":"SP","Team":"CLE","Role":"Night","Salary":7500,"Projected FP":19.07},
-                {"Player Name":"Cal Raleigh","Position":"C","Team":"SEA","Role":"Night","Salary":5800,"Projected FP":8.36},
-                {"Player Name":"Shohei Ohtani","Position":"1B/OF","Team":"LAD","Role":"Night","Salary":6500,"Projected FP":10.95},
-                {"Player Name":"Jose Ramirez","Position":"3B","Team":"CLE","Role":"Night","Salary":5600,"Projected FP":7.77},
-                {"Player Name":"Julio Rodriguez","Position":"OF","Team":"SEA","Role":"Night","Salary":5000,"Projected FP":8.19}
-            ];
-            availableSlates = ["Night"];
-            selectedSlate = "Night";
-            updateSlate();
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            loadingOverlay.classList.add('active');
+            loadingMessage.classList.remove('hidden');
+            console.log('Fetching data from Google Sheets (MLB CHEAT SHEET)...');
+            // The provided CSV document confirms the exact column structure. The sheet URL below is the public MLB cheat sheet (replace with your exact link if different).
+            const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRYY3lCP1jiJ3x4cHr87LhcNraa7KGZRKFo1jOa9EoS5VuUEehS2faNZTTM0mhKutJ-t1CDeZF0leXh/pub?gid=585863704&output=csv';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch data: ' + response.status);
+                const csvText = await response.text();
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    complete: (results) => {
+                        console.log('Parse complete. Data length:', results.data.length);
+                        rawData = results.data.map(row => {
+                            let gameStartTimeStr = row['Game Start Time (DRAFTTABLE)'] || row['Game Start Time'] || 'n/a';
+                            let gameStartTime = new Date(0);
+                            if (gameStartTimeStr !== 'n/a' && gameStartTimeStr.includes('/')) {
+                                const [month, day, year] = gameStartTimeStr.split('/');
+                                gameStartTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                            }
+                            return {
+                                'Player Name': row['Player Name'] || '',
+                                'Position': row['Position'] || '',
+                                'Team': row['Team'] || '',
+                                'Role': row['Role'] || row['Slate Type'] || '',
+                                salary: parseFloat(row['Salary']) || 0,
+                                id: row['Draftable ID'] || '',
+                                gameStartTime,
+                                'Projected FP': parseFloat(row['Projected FP']) || 0,
+                                ownership: 0
+                            };
+                        }).filter(row => row['Player Name'] && row.salary > 0);
+
+                        // Normalize pitchers
+                        rawData.forEach(row => {
+                            if (row['Position'] === 'SP' || row['Position'] === 'RP') row['Position'] = 'P';
+                        });
+
+                        adjustedProjections = {};
+                        rawData.forEach(row => {
+                            if (!adjustedProjections[row['Role']]) adjustedProjections[row['Role']] = {};
+                            adjustedProjections[row['Role']][row['Player Name']] = row['Projected FP'];
+                        });
+
+                        availableSlates = [...new Set(rawData.map(row => row['Role']))].filter(Boolean);
+
+                        const slatesWithDates = availableSlates.map(slate => {
+                            const datePattern = /\d{4}-\d{2}-\d{2}/;
+                            const dateStr = slate.match(datePattern)?.[0] || '9999-12-31';
+                            const dateParts = dateStr.split('-');
+                            let date = new Date(9999, 11, 31);
+                            if (dateParts.length === 3) {
+                                date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+                            }
+                            return { slate, date };
+                        }).sort((a, b) => a.date - b.date || a.slate.localeCompare(b.slate));
+
+                        document.getElementById('slateMenu').innerHTML = slatesWithDates.map(({slate}) =>
+                            `<label><input type="radio" name="slate" value="${slate}" onchange="updateSlate(this.value)">${slate}</label>`
+                        ).join('');
+
+                        selectedSlate = slatesWithDates.length > 0 ? slatesWithDates[0].slate : null;
+                        document.getElementById('slateDropdown').textContent = selectedSlate || 'Select Slate';
+                        if (selectedSlate) updateSlate(selectedSlate);
+
+                        loadingOverlay.classList.remove('active');
+                        loadingMessage.classList.add('hidden');
+                    }
+                });
+            } catch (error) {
+                console.error('Fetch error:', error);
+                loadingOverlay.classList.remove('active');
+                loadingMessage.classList.add('hidden');
+                alert('Error loading MLB CHEAT SHEET data. Please verify the Google Sheet is public.');
+            }
         }
 
-        function updateSlate() {
-            document.getElementById('slateDropdown').textContent = selectedSlate;
+        function updateSlate(value) {
+            selectedSlate = value;
+            document.getElementById('slateDropdown').textContent = value;
+            const isShowdown = value.includes('Showdown Captain Mode');
+            document.getElementById('configureStacks').style.display = 'block';
+
+            // MLB salary cap is $50,000 for both
+            minSalary = 49500;
+            maxSalary = 50000;
+            minTotalOwnership = 0;
+            maxTotalOwnership = isShowdown ? 500 : 300;
+
+            document.getElementById('minSalarySlider').value = minSalary;
+            document.getElementById('maxSalarySlider').value = maxSalary;
+            document.getElementById('salaryRangeValue').textContent = `${minSalary} - ${maxSalary}`;
+            document.getElementById('minOwnershipSlider').value = minTotalOwnership;
+            document.getElementById('maxOwnershipSlider').value = maxTotalOwnership;
+            document.getElementById('maxOwnershipSlider').max = maxTotalOwnership;
+            document.getElementById('minOwnershipSlider').max = maxTotalOwnership;
+            document.getElementById('ownershipRangeValue').textContent = `${minTotalOwnership}% - ${maxTotalOwnership}%`;
+
+            updateSalaryRangeTrack();
+            updateOwnershipRangeTrack();
+
+            // Parse players for this slate
+            allSlatePlayers = rawData.filter(row => row['Role'] === value).map(row => {
+                let baseName = row['Player Name'];
+                let projectedFP = adjustedProjections[value][baseName] || 0;
+                let displayName = baseName;
+                let slotType = '';
+                let positions = row['Position'].split('/').map(p => p.trim());
+
+                if (isShowdown) {
+                    if (row['Position'] === 'CPT' || positions.includes('CPT')) {
+                        displayName += ' (CPT)';
+                        projectedFP *= 1.5;
+                        slotType = 'CPT';
+                        positions = ['CPT'];
+                    } else {
+                        displayName += ' (UTIL)';
+                        slotType = 'UTIL';
+                    }
+                } else {
+                    // Normalize pitchers
+                    positions = positions.map(p => (p === 'SP' || p === 'RP') ? 'P' : p);
+                }
+
+                return {
+                    displayName,
+                    baseName,
+                    Position: row['Position'],
+                    Team: row['Team'],
+                    salary: row.salary,
+                    id: row.id,
+                    projectedFP,
+                    slotType,
+                    positions,
+                    gameStartTime: row.gameStartTime,
+                    ownership: row.ownership || 0
+                };
+            });
+
+            const slateTeams = [...new Set(allSlatePlayers.map(p => p.Team))].sort();
+            document.getElementById('teamMenu').innerHTML = slateTeams.map(team =>
+                `<label><input type="checkbox" value="${team}" onchange="updateTeams()">${team}</label>`
+            ).join('');
+
+            const slatePlayers = [...new Set(allSlatePlayers.map(p => p.baseName))].sort();
+            document.getElementById('playerList').innerHTML = slatePlayers.map(player =>
+                `<label><input type="checkbox" value="${player}" onchange="updatePlayers()">${player}</label>`
+            ).join('');
+
+            selectedTeams = [];
+            selectedPlayers = [];
+            updateDropdownButton('teamDropdown', [], 'Teams');
+            updateDropdownButton('playerSearchDropdown', [], 'Players');
+
             updateTable();
         }
 
-        function updateTable() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = rawData.map(row => `
-                <tr>
-                    <td>${row["Player Name"]}</td>
-                    <td>${row.Team}</td>
-                    <td>${row.Position}</td>
-                    <td>$${row.Salary}</td>
-                    <td>${row["Projected FP"].toFixed(2)}</td>
-                </tr>
-            `).join('');
-        }
-
         function updateMaxExposure() {
-            document.getElementById('maxExposureValue').textContent = document.getElementById('maxExposureSlider').value + '%';
+            maxExposure = parseFloat(document.getElementById('maxExposureSlider').value) / 100;
+            document.getElementById('maxExposureValue').textContent = `${maxExposure * 100}%`;
         }
 
-        function runLineupGeneration() {
-            alert("✅ Full MLB DFS Lineup Builder is now loaded and functional!\n\nLineup generation, stacking, and Classic/Showdown support are ready for the next step.");
+        function updateSalaryRange() {
+            const minSlider = document.getElementById('minSalarySlider');
+            const maxSlider = document.getElementById('maxSalarySlider');
+            minSalary = parseInt(minSlider.value);
+            maxSalary = parseInt(maxSlider.value);
+            if (minSalary > maxSalary) {
+                const temp = minSalary;
+                minSalary = maxSalary;
+                maxSalary = temp;
+                minSlider.value = minSalary;
+                maxSlider.value = maxSalary;
+            }
+            document.getElementById('salaryRangeValue').textContent = `${minSalary} - ${maxSalary}`;
+            updateSalaryRangeTrack();
+        }
+
+        function updateOwnershipRange() {
+            const minSlider = document.getElementById('minOwnershipSlider');
+            const maxSlider = document.getElementById('maxOwnershipSlider');
+            minTotalOwnership = parseInt(minSlider.value);
+            maxTotalOwnership = parseInt(maxSlider.value);
+            if (minTotalOwnership > maxTotalOwnership) {
+                const temp = minTotalOwnership;
+                minTotalOwnership = maxTotalOwnership;
+                maxTotalOwnership = temp;
+                minSlider.value = minTotalOwnership;
+                maxSlider.value = maxTotalOwnership;
+            }
+            document.getElementById('ownershipRangeValue').textContent = `${minTotalOwnership}% - ${maxTotalOwnership}%`;
+            updateOwnershipRangeTrack();
+        }
+
+        function updateSalaryRangeTrack() {
+            const minSlider = document.getElementById('minSalarySlider');
+            const maxSlider = document.getElementById('maxSalarySlider');
+            const track = document.getElementById('salaryRangeTrack');
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
+            const rangeMin = parseInt(minSlider.min);
+            const rangeMax = parseInt(minSlider.max);
+            const minPercent = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
+            const maxPercent = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
+            track.style.left = `${minPercent}%`;
+            track.style.width = `${maxPercent - minPercent}%`;
+        }
+
+        function updateOwnershipRangeTrack() {
+            const minSlider = document.getElementById('minOwnershipSlider');
+            const maxSlider = document.getElementById('maxOwnershipSlider');
+            const track = document.getElementById('ownershipRangeTrack');
+            const min = parseInt(minSlider.value);
+            const max = parseInt(maxSlider.value);
+            const rangeMin = parseInt(minSlider.min);
+            const rangeMax = parseInt(minSlider.max);
+            const minPercent = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
+            const maxPercent = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
+            track.style.left = `${minPercent}%`;
+            track.style.width = `${maxPercent - minPercent}%`;
+        }
+
+        function updateNumLineups() {
+            numLineups = Math.min(500, Math.max(1, parseInt(document.getElementById('numLineupsInput').value) || 20));
+            document.getElementById('numLineupsInput').value = numLineups;
+        }
+
+        function updateMinValue() {
+            minValue = parseFloat(document.getElementById('minValueInput').value) || 0;
+            updateTable();
+        }
+
+        function filterPlayersSearch() {
+            const search = document.getElementById('player-search').value.toLowerCase();
+            document.querySelectorAll('#playerList label').forEach(label => {
+                label.style.display = label.textContent.toLowerCase().includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function filterConditionPlayersSearch() {
+            const search = document.getElementById('condition-player-search').value.toLowerCase();
+            document.querySelectorAll('#conditionPlayerList label').forEach(label => {
+                label.style.display = label.textContent.toLowerCase().includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function filterGroupPlayersSearch() {
+            const search = document.getElementById('group-player-search').value.toLowerCase();
+            document.querySelectorAll('#groupPlayerList label').forEach(label => {
+                label.style.display = label.textContent.toLowerCase().includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function updateStackCaptain(value) {
+            stackCaptain = value;
+            document.getElementById('stackCaptainDropdown').textContent = value;
+            populateStackReceiverMenu();
+        }
+
+        function updateStackReceiver(value) {
+            stackReceiver = value;
+            document.getElementById('stackReceiverDropdown').textContent = value;
+        }
+
+        function updateStackPercentage() {
+            stackPercentage = Math.min(100, Math.max(0, parseInt(document.getElementById('stackLineupsInput').value) || 0));
+            document.getElementById('stackLineupsInput').value = stackPercentage;
+        }
+
+        function updateStackCaptain2(value) {
+            stackCaptain2 = value;
+            document.getElementById('stackCaptainDropdown2').textContent = value;
+            populateStackReceiverMenu2();
+        }
+
+        function updateStackReceiver2(value) {
+            stackReceiver2 = value;
+            document.getElementById('stackReceiverDropdown2').textContent = value;
+        }
+
+        function updateStackPercentage2() {
+            stackPercentage2 = Math.min(100, Math.max(0, parseInt(document.getElementById('stackLineupsInput2').value) || 0));
+            document.getElementById('stackLineupsInput2').value = stackPercentage2;
+        }
+
+        function updateConditionPlayer(value) {
+            conditionPlayer = value;
+            document.getElementById('conditionPlayerDropdown').textContent = value || 'Any Player (Optional)';
+        }
+
+        function updateGroupPlayers() {
+            const selected = Array.from(document.querySelectorAll('#groupPlayerList input:checked')).map(input => input.value);
+            updateDropdownButton('groupPlayersDropdown', selected, 'players');
+        }
+
+        function addGroup() {
+            const type = document.getElementById('groupTypeSelect').value;
+            const numPlayers = Math.min(9, Math.max(0, parseInt(document.getElementById('numGroupPlayers').value) || 1));
+            const players = Array.from(document.querySelectorAll('#groupPlayerList input:checked')).map(input => input.value);
+            const percentage = Math.min(100, Math.max(0, parseInt(document.getElementById('groupPercentageInput').value) || 100));
+            if (players.length === 0) {
+                alert('Please select players for the group.');
+                return;
+            }
+            if (editingIndex >= 0) {
+                groupList[editingIndex] = { type, numPlayers, players: [...new Set(players)], conditionPlayer, percentage };
+                editingIndex = -1;
+                document.getElementById('addGroupButton').textContent = 'Add Group';
+            } else {
+                groupList.push({ type, numPlayers, players: [...new Set(players)], conditionPlayer, percentage });
+            }
+            updateGroupList();
+            resetGroupFields();
+        }
+
+        function resetGroupFields() {
+            document.getElementById('groupTypeSelect').value = 'max';
+            document.getElementById('numGroupPlayers').value = 1;
+            document.getElementById('groupPercentageInput').value = 100;
+            document.querySelectorAll('#groupPlayerList input:checked').forEach(input => input.checked = false);
+            updateDropdownButton('groupPlayersDropdown', [], 'players');
+            conditionPlayer = null;
+            document.getElementById('conditionPlayerDropdown').textContent = 'Any Player (Optional)';
+            editingIndex = -1;
+            document.getElementById('addGroupButton').textContent = 'Add Group';
+        }
+
+        function updateGroupList() {
+            const div = document.getElementById('groupList');
+            div.innerHTML = groupList.map((g, i) => {
+                let conditionText = g.conditionPlayer ? `When lineups include ${g.conditionPlayer}, ` : '';
+                let typeText = g.type === 'min' ? 'At Least' : g.type === 'exact' ? 'Exactly' : 'At Most';
+                return `<div>${conditionText}${typeText} ${g.numPlayers} of ${g.players.join(', ')} in ${g.percentage}% <button onclick="deleteGroup(${i})">Delete</button><button onclick="editGroup(${i})">Edit</button></div>`;
+            }).join('');
+        }
+
+        function deleteGroup(i) {
+            groupList.splice(i, 1);
+            updateGroupList();
+        }
+
+        function editGroup(i) {
+            editingIndex = i;
+            const g = groupList[i];
+            document.getElementById('groupTypeSelect').value = g.type;
+            document.getElementById('numGroupPlayers').value = g.numPlayers;
+            document.getElementById('groupPercentageInput').value = g.percentage;
+            document.querySelectorAll('#groupPlayerList input').forEach(input => input.checked = g.players.includes(input.value));
+            updateGroupPlayers();
+            updateConditionPlayer(g.conditionPlayer || '');
+            document.getElementById('addGroupButton').textContent = 'Update Group';
+        }
+
+        function populateStackCaptainMenu() {
+            const isShowdown = selectedSlate && selectedSlate.includes('Showdown Captain Mode');
+            let captains = isShowdown ? allSlatePlayers.filter(p => p.slotType === 'CPT') : allSlatePlayers.filter(p => p.positions.includes('P'));
+            captains = captains.sort((a, b) => b.projectedFP - a.projectedFP).map(p => p.displayName);
+            document.getElementById('stackCaptainMenu').innerHTML = captains.map(captain =>
+                `<label><input type="radio" name="stackCaptain" value="${captain}" onchange="updateStackCaptain(this.value)">${captain}</label>`
+            ).join('');
+        }
+
+        function populateStackReceiverMenu() {
+            if (!stackCaptain) return;
+            const captainTeam = allSlatePlayers.find(p => p.displayName === stackCaptain)?.Team;
+            if (!captainTeam) return;
+            const receivers = allSlatePlayers.filter(p => p.Team === captainTeam && p.positions.some(pos => ['C','1B','2B','3B','SS','OF'].includes(pos)))
+                .sort((a, b) => b.projectedFP - a.projectedFP)
+                .map(p => p.displayName);
+            document.getElementById('stackReceiverMenu').innerHTML = receivers.map(receiver =>
+                `<label><input type="radio" name="stackReceiver" value="${receiver}" onchange="updateStackReceiver(this.value)">${receiver}</label>`
+            ).join('');
+        }
+
+        function populateStackCaptainMenu2() {
+            const isShowdown = selectedSlate && selectedSlate.includes('Showdown Captain Mode');
+            let captains = isShowdown ? allSlatePlayers.filter(p => p.slotType === 'CPT') : allSlatePlayers.filter(p => p.positions.includes('P'));
+            captains = captains.sort((a, b) => b.projectedFP - a.projectedFP).map(p => p.displayName);
+            document.getElementById('stackCaptainMenu2').innerHTML = captains.map(captain =>
+                `<label><input type="radio" name="stackCaptain2" value="${captain}" onchange="updateStackCaptain2(this.value)">${captain}</label>`
+            ).join('');
+        }
+
+        function populateStackReceiverMenu2() {
+            if (!stackCaptain2) return;
+            const captainTeam = allSlatePlayers.find(p => p.displayName === stackCaptain2)?.Team;
+            if (!captainTeam) return;
+            const receivers = allSlatePlayers.filter(p => p.Team === captainTeam && p.positions.some(pos => ['C','1B','2B','3B','SS','OF'].includes(pos)))
+                .sort((a, b) => b.projectedFP - a.projectedFP)
+                .map(p => p.displayName);
+            document.getElementById('stackReceiverMenu2').innerHTML = receivers.map(receiver =>
+                `<label><input type="radio" name="stackReceiver2" value="${receiver}" onchange="updateStackReceiver2(this.value)">${receiver}</label>`
+            ).join('');
+        }
+
+        function populateConditionPlayersMenu() {
+            const players = [...new Set(allSlatePlayers.map(p => p.displayName))].sort((a, b) => {
+                const pa = allSlatePlayers.find(p => p.displayName === a);
+                const pb = allSlatePlayers.find(p => p.displayName === b);
+                return pb.projectedFP - pa.projectedFP;
+            });
+            document.getElementById('conditionPlayerList').innerHTML = '<label><input type="radio" name="conditionPlayer" value="" onchange="updateConditionPlayer(this.value)">Any Player (Optional)</label>' + players.map(player =>
+                `<label><input type="radio" name="conditionPlayer" value="${player}" onchange="updateConditionPlayer(this.value)">${player}</label>`
+            ).join('');
+        }
+
+        function populateGroupPlayersMenu() {
+            const players = [...new Set(allSlatePlayers.map(p => p.displayName))].sort((a, b) => {
+                const pa = allSlatePlayers.find(p => p.displayName === a);
+                const pb = allSlatePlayers.find(p => p.displayName === b);
+                return pb.projectedFP - pa.projectedFP;
+            });
+            document.getElementById('groupPlayerList').innerHTML = players.map(player =>
+                `<label><input type="checkbox" value="${player}" onchange="updateGroupPlayers()">${player}</label>`
+            ).join('');
+        }
+
+        function showTab(tab) {
+            document.getElementById('groupsSection').style.display = tab === 'groups' ? 'block' : 'none';
+            document.getElementById('stacksSection').style.display = tab === 'stacks' ? 'block' : 'none';
+        }
+
+        function sortTable(column) {
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            updateTable();
+            const headers = document.querySelectorAll('#tableHeader th');
+            headers.forEach(header => {
+                header.classList.remove('asc', 'desc');
+                if (header.textContent === column) header.classList.add(sortDirection);
+            });
+        }
+
+        function updateTable() {
+            if (!selectedSlate) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10">No slate selected</td></tr>';
+                return;
+            }
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            const projectedFPFilter = document.getElementById('projectedFPFilter').checked;
+
+            let tempData = rawData.filter(row => row['Role'] === selectedSlate && row.id && row.salary > 0 && (!projectedFPFilter || (adjustedProjections[row['Role']][row['Player Name']] || 0) > 0.1))
+                .map(row => {
+                    let baseName = row['Player Name'];
+                    let projectedFP = adjustedProjections[row['Role']][baseName] || 0;
+                    let displayName = baseName;
+                    let slotType = '';
+                    let positions = row['Position'].split('/').map(p => p.trim());
+
+                    if (isShowdown) {
+                        if (row['Position'] === 'CPT' || positions.includes('CPT')) {
+                            displayName += ' (CPT)';
+                            projectedFP *= 1.5;
+                            slotType = 'CPT';
+                            positions = ['CPT'];
+                        } else {
+                            displayName += ' (UTIL)';
+                            slotType = 'UTIL';
+                        }
+                    } else {
+                        positions = positions.map(p => (p === 'SP' || p === 'RP') ? 'P' : p);
+                    }
+
+                    const playerKey = displayName;
+                    if (minExposures[playerKey] === undefined) {
+                        minExposures[playerKey] = 0;
+                        maxExposures[playerKey] = 100;
+                    }
+                    const value = row.salary > 0 ? (projectedFP / row.salary * 1000) : 0;
+
+                    return {
+                        displayName,
+                        baseName,
+                        Position: row['Position'],
+                        Team: row['Team'],
+                        salary: row.salary,
+                        id: row.id,
+                        projectedFP,
+                        minExposure: minExposures[playerKey],
+                        maxExposure: maxExposures[playerKey],
+                        slotType,
+                        positions,
+                        gameStartTime: row.gameStartTime,
+                        ownership: row.ownership,
+                        value
+                    };
+                });
+
+            filteredData = tempData.filter(row => {
+                const posMatch = !selectedPositions.length || row.positions.some(pos => selectedPositions.includes(pos));
+                const teamMatch = !selectedTeams.length || selectedTeams.includes(row.Team);
+                const playerMatch = !selectedPlayers.length || selectedPlayers.includes(row.baseName);
+                return posMatch && teamMatch && playerMatch && row.value >= minValue;
+            });
+
+            if (sortColumn) {
+                filteredData.sort((a, b) => {
+                    let valA, valB;
+                    switch (sortColumn) {
+                        case 'Player': valA = a.displayName.toLowerCase(); valB = b.displayName.toLowerCase(); break;
+                        case 'Team': valA = a.Team; valB = b.Team; break;
+                        case 'Position': valA = a.Position; valB = b.Position; break;
+                        case 'Salary': valA = a.salary; valB = b.salary; break;
+                        case 'Projected FP': valA = a.projectedFP; valB = b.projectedFP; break;
+                        case 'Value': valA = a.value; valB = b.value; break;
+                        default: valA = a.displayName.toLowerCase(); valB = b.displayName.toLowerCase();
+                    }
+                    if (sortDirection === 'asc') return valA > valB ? 1 : valA < valB ? -1 : 0;
+                    return valA < valB ? 1 : valA > valB ? -1 : 0;
+                });
+            }
+
+            const headers = [' ', 'Player', 'Team', 'Position', 'Salary', 'Projected FP', 'Value', 'Projected Ownership', 'Min Exposure', 'Max Exposure'];
+            document.getElementById('tableHeader').innerHTML = headers.map(h => `<th>${h}</th>`).join('');
+
+            const tableBodyHTML = filteredData.map(row => {
+                const isDeselected = deselectedPlayers.has(row.displayName);
+                const iconText = isDeselected ? '✓' : 'X';
+                const iconColor = isDeselected ? 'green' : 'red';
+                return `
+                    <tr class="${isDeselected ? 'deselected' : ''}">
+                        <td><span class="deselect-icon" style="color: ${iconColor};" onclick="toggleDeselect('${row.displayName}')">${iconText}</span></td>
+                        <td>${row.displayName}</td>
+                        <td>${row.Team}</td>
+                        <td>${row.Position}</td>
+                        <td>${row.salary}</td>
+                        <td class="editable" data-player="${row.displayName}">${row.projectedFP.toFixed(2)}</td>
+                        <td>${row.value.toFixed(2)}</td>
+                        <td>${row.ownership.toFixed(2)}%</td>
+                        <td><input type="number" min="0" max="100" value="${row.minExposure}" onchange="updateExposure('${row.displayName}', 'min', this.value)"></td>
+                        <td><input type="number" min="0" max="100" value="${row.maxExposure}" onchange="updateExposure('${row.displayName}', 'max', this.value)"></td>
+                    </tr>`;
+            }).join('');
+            document.getElementById('tableBody').innerHTML = tableBodyHTML;
+        }
+
+        function toggleDeselect(playerDisplayName) {
+            if (deselectedPlayers.has(playerDisplayName)) {
+                deselectedPlayers.delete(playerDisplayName);
+            } else {
+                deselectedPlayers.add(playerDisplayName);
+            }
+            updateTable();
+        }
+
+        function updateExposure(playerDisplayName, type, value) {
+            const val = Math.min(100, Math.max(0, parseInt(value) || 0));
+            if (type === 'min') minExposures[playerDisplayName] = val;
+            else maxExposures[playerDisplayName] = val;
+            const player = filteredData.find(p => p.displayName === playerDisplayName);
+            if (player) player[`${type}Exposure`] = val;
+            updateTable();
+            if (generatedLineups.length > 0) {
+                const playerCounts = {};
+                filteredData.forEach(p => playerCounts[p.displayName] = 0);
+                generatedLineups.forEach(lineup => updatePlayerCounts(lineup, playerCounts, selectedSlate.includes('Showdown Captain Mode')));
+                updateExposureComparison(playerCounts, [], groupList, selectedSlate.includes('Showdown Captain Mode'), exposurePositionFilter);
+            }
+        }
+
+        function updateProjectedFP(playerDisplayName, newValue) {
+            const player = filteredData.find(p => p.displayName === playerDisplayName);
+            if (player) {
+                let baseFP = player.displayName.endsWith(' (CPT)') ? newValue / 1.5 : newValue;
+                adjustedProjections[selectedSlate][player.baseName] = baseFP;
+                updateTable();
+            }
+        }
+
+        function updateLineupTableHeaders(isShowdown) {
+            const tr = document.getElementById('lineupHeaderRow');
+            tr.innerHTML = '<th>Lineup #</th>';
+            if (isShowdown) {
+                tr.innerHTML += '<th>CPT</th><th>UTIL1</th><th>UTIL2</th><th>UTIL3</th><th>UTIL4</th><th>UTIL5</th>';
+            } else {
+                tr.innerHTML += '<th>P1</th><th>P2</th><th>C</th><th>1B</th><th>2B</th><th>3B</th><th>SS</th><th>OF1</th><th>OF2</th><th>OF3</th><th>UTIL</th>';
+            }
+            tr.innerHTML += '<th>Total Salary</th><th>Total Projected Points</th><th>Total Projected Ownership</th>';
+        }
+
+        function updateLineupTable() {
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            let sortedLineups = [...generatedLineups];
+            if (lineupSortColumn) {
+                sortedLineups.sort((a, b) => {
+                    let valA = 0, valB = 0;
+                    if (lineupSortColumn === 'Total Salary') { valA = a.totalSalary; valB = b.totalSalary; }
+                    else if (lineupSortColumn === 'Total Projected Points') { valA = a.totalPoints; valB = b.totalPoints; }
+                    else if (lineupSortColumn === 'Total Projected Ownership') { valA = a.totalOwnership; valB = b.totalOwnership; }
+                    return lineupSortDirection === 'asc' ? valA - valB : valB - valA;
+                });
+            }
+            const lineupTableBody = document.getElementById('lineupTableBody');
+            lineupTableBody.innerHTML = sortedLineups.map((l, i) => {
+                let positionsHtml = '';
+                if (isShowdown) {
+                    positionsHtml = `<td class="player-cell">${l.lineup.captain ? l.lineup.captain.name + '<br>($' + l.lineup.captain.salary + ')' : ''}</td>` +
+                                    l.lineup.util.map(f => `<td class="player-cell">${f.name + '<br>($' + f.salary + ')'}</td>`).join('');
+                } else {
+                    // Classic MLB order
+                    const order = ['P1','P2','C','1B','2B','3B','SS','OF1','OF2','OF3','UTIL'];
+                    const slots = Object.keys(l.lineup);
+                    positionsHtml = order.map(slot => {
+                        const p = l.lineup[slot] || l.lineup[slot.toLowerCase()];
+                        return `<td class="player-cell">${p ? p.name + '<br>($' + p.salary + ')' : ''}</td>`;
+                    }).join('');
+                }
+                return `<tr><td>${i + 1}</td>${positionsHtml}<td>${l.totalSalary}</td><td>${l.totalPoints.toFixed(2)}</td><td>${l.totalOwnership.toFixed(2)}%</td></tr>`;
+            }).join('');
+        }
+
+        function sortLineupTable(column) {
+            if (lineupSortColumn === column) {
+                lineupSortDirection = lineupSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                lineupSortColumn = column;
+                lineupSortDirection = 'asc';
+            }
+            updateLineupTable();
+        }
+
+        function getVarNamesFromLineup(lineupObj, isShowdown) {
+            const vars = [];
+            if (isShowdown) {
+                if (lineupObj.lineup.captain) vars.push(`${lineupObj.lineup.captain.baseName}_CPT`);
+                lineupObj.lineup.util.forEach(f => vars.push(`${f.baseName}_UTIL`));
+            } else {
+                // Classic MLB
+                vars.push(`${lineupObj.lineup.P1 ? lineupObj.lineup.P1.baseName : ''}_P`);
+                vars.push(`${lineupObj.lineup.P2 ? lineupObj.lineup.P2.baseName : ''}_P`);
+                vars.push(`${lineupObj.lineup.C ? lineupObj.lineup.C.baseName : ''}_C`);
+                vars.push(`${lineupObj.lineup['1B'] ? lineupObj.lineup['1B'].baseName : ''}_1B`);
+                vars.push(`${lineupObj.lineup['2B'] ? lineupObj.lineup['2B'].baseName : ''}_2B`);
+                vars.push(`${lineupObj.lineup['3B'] ? lineupObj.lineup['3B'].baseName : ''}_3B`);
+                vars.push(`${lineupObj.lineup.SS ? lineupObj.lineup.SS.baseName : ''}_SS`);
+                vars.push(`${lineupObj.lineup.OF1 ? lineupObj.lineup.OF1.baseName : ''}_OF`);
+                vars.push(`${lineupObj.lineup.OF2 ? lineupObj.lineup.OF2.baseName : ''}_OF`);
+                vars.push(`${lineupObj.lineup.OF3 ? lineupObj.lineup.OF3.baseName : ''}_OF`);
+                vars.push(`${lineupObj.lineup.UTIL ? lineupObj.lineup.UTIL.baseName : ''}_UTIL`);
+            }
+            return vars;
+        }
+
+        async function runLineupGeneration() {
+            if (!selectedSlate) {
+                alert('Please select a slate');
+                return;
+            }
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+
+            updateLineupTableHeaders(isShowdown);
+
+            const availablePlayers = filteredData.filter(row => !deselectedPlayers.has(row.displayName)).map(row => ({
+                name: row.baseName,
+                baseName: row.baseName,
+                displayName: row.displayName,
+                id: row.id,
+                salary: row.salary,
+                points: row.projectedFP,
+                maxExposure: row.maxExposure,
+                minExposure: row.minExposure,
+                slotType: row.slotType,
+                positions: row.positions
+            }));
+
+            if (availablePlayers.length < (isShowdown ? 6 : 11)) {
+                alert(`Insufficient players. Need at least ${isShowdown ? 6 : 11} for this slate.`);
+                return;
+            }
+
+            const playerCounts = {};
+            availablePlayers.forEach(p => playerCounts[p.displayName] = 0);
+
+            generatedLineups = [];
+            logMessages = [];
+            const stacks = [];
+            if (stackCaptain && stackReceiver && stackPercentage > 0) stacks.push({ captain: stackCaptain, receiver: stackReceiver, num: Math.floor(numLineups * stackPercentage / 100), generated: 0 });
+            if (stackCaptain2 && stackReceiver2 && stackPercentage2 > 0) stacks.push({ captain: stackCaptain2, receiver: stackReceiver2, num: Math.floor(numLineups * stackPercentage2 / 100), generated: 0 });
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingMessage = document.getElementById('loadingMessage');
+            loadingOverlay.classList.add('active');
+            loadingMessage.textContent = 'Generating lineups... 0%';
+            loadingMessage.classList.remove('hidden');
+
+            let progress = 0;
+            const updateProgress = () => {
+                progress++;
+                loadingMessage.textContent = `Generating lineups... ${Math.round(progress / numLineups * 100)}%`;
+            };
+
+            // Stack generation loop (same as original, adapted for MLB)
+            for (let s = 0; s < stacks.length; s++) {
+                const stack = stacks[s];
+                let consecutiveInfeasible = 0;
+                let tempMinSalary = minSalary;
+                let relaxedMax = maxExposure;
+                let randomnessFactor = 0.3;
+                while (stack.generated < stack.num && consecutiveInfeasible < 100) {
+                    try {
+                        const model = createModel(true, false, playerCounts, generatedLineups.length, stack.captain, stack.receiver, null, tempMinSalary, relaxedMax, generatedLineups, randomnessFactor);
+                        const result = solver.Solve(model);
+                        if (!result.feasible) {
+                            consecutiveInfeasible++;
+                            tempMinSalary = Math.max(0, tempMinSalary - 3000);
+                            relaxedMax = Math.min(1.0, relaxedMax + 0.1);
+                            randomnessFactor = Math.min(1.0, randomnessFactor + 0.2);
+                            continue;
+                        }
+                        const lineup = buildLineup(result, isShowdown);
+                        if (lineup) {
+                            generatedLineups.push(lineup);
+                            updatePlayerCounts(lineup, playerCounts, isShowdown);
+                            stack.generated++;
+                            updateProgress();
+                        }
+                    } catch (e) {
+                        consecutiveInfeasible++;
+                    }
+                }
+            }
+
+            // Remaining lineups
+            while (generatedLineups.length < numLineups) {
+                try {
+                    const model = createModel(false, false, playerCounts, generatedLineups.length, null, null, null, minSalary, maxExposure, generatedLineups, 0.3);
+                    const result = solver.Solve(model);
+                    if (result.feasible) {
+                        const lineup = buildLineup(result, isShowdown);
+                        if (lineup) {
+                            generatedLineups.push(lineup);
+                            updatePlayerCounts(lineup, playerCounts, isShowdown);
+                            updateProgress();
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            loadingOverlay.classList.remove('active');
+            loadingMessage.classList.add('hidden');
+
+            updateLineupTable();
             document.getElementById('lineupTableContainer').style.display = 'block';
+
+            const playerCountsFinal = {};
+            filteredData.forEach(p => playerCountsFinal[p.displayName] = 0);
+            generatedLineups.forEach(lineup => updatePlayerCounts(lineup, playerCountsFinal, isShowdown));
+            updateExposureComparison(playerCountsFinal, stacks, groupList, isShowdown);
+        }
+
+        function createModel(enforceStack, enforceGroup, playerCounts, currentGenerated, stackCap, stackRec, group, tempMinSalary, relaxedMax, previousLineups, randomnessFactor) {
+            const model = {
+                optimize: 'points',
+                opType: 'max',
+                constraints: { salary: { max: maxSalary, min: tempMinSalary }, ownership: { max: maxTotalOwnership, min: minTotalOwnership } },
+                variables: {},
+                ints: {}
+            };
+
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            const slotRequirements = isShowdown 
+                ? { CPT: 1, UTIL: 5 }
+                : { P: 2, C: 1, '1B': 1, '2B': 1, '3B': 1, SS: 1, OF: 3, UTIL: 1 };
+
+            Object.keys(slotRequirements).forEach(slot => {
+                model.constraints[slot] = { equal: slotRequirements[slot] };
+            });
+
+            filteredData.forEach(player => {
+                if (deselectedPlayers.has(player.displayName)) return;
+                const displayName = player.displayName;
+                const minReq = Math.ceil(minExposures[displayName] / 100 * numLineups);
+                const effectiveMax = Math.min(maxExposures[displayName], relaxedMax * 100);
+                const maxAllowed = Math.floor(effectiveMax / 100 * numLineups);
+                if (playerCounts[displayName] >= maxAllowed) return;
+
+                let adjustedPoints = player.projectedFP * (1 + (Math.random() - 0.5) * 2 * randomnessFactor);
+                if (playerCounts[displayName] < minReq) adjustedPoints *= 1.5;
+
+                const eligibleSlots = isShowdown ? [player.slotType] : getEligibleSlots(player.positions);
+
+                eligibleSlots.forEach(slot => {
+                    const varName = `${player.baseName}_${slot}`;
+                    model.variables[varName] = {
+                        points: adjustedPoints,
+                        salary: player.salary,
+                        ownership: player.ownership,
+                        [player.baseName]: 1,
+                        [slot]: 1
+                    };
+                    model.ints[varName] = 1;
+                });
+            });
+
+            // Unique player constraints
+            const uniqueNames = new Set(filteredData.map(p => p.baseName));
+            uniqueNames.forEach(name => {
+                if (!model.constraints[name]) model.constraints[name] = { max: 1 };
+            });
+
+            // Stack enforcement
+            if (enforceStack && stackCap && stackRec) {
+                const captainBase = stackCap.split(' (')[0];
+                const teammateBase = stackRec.split(' (')[0];
+                if (model.constraints[captainBase]) model.constraints[captainBase].min = 1;
+                if (model.constraints[teammateBase]) model.constraints[teammateBase].min = 1;
+            }
+
+            // Group enforcement (same as original)
+            if (enforceGroup && group) {
+                const groupName = `group_${Math.random()}`;
+                if (group.type === 'min') model.constraints[groupName] = { min: group.numPlayers };
+                else if (group.type === 'max') model.constraints[groupName] = { max: group.numPlayers };
+                group.players.forEach(pl => {
+                    const pData = filteredData.find(pp => pp.baseName === pl);
+                    if (pData) {
+                        const slots = getEligibleSlots(pData.positions);
+                        slots.forEach(s => {
+                            const v = `${pData.baseName}_${s}`;
+                            if (model.variables[v]) model.variables[v][groupName] = 1;
+                        });
+                    }
+                });
+            }
+
+            return model;
+        }
+
+        function buildLineup(result, isShowdown) {
+            const lineup = isShowdown ? { captain: null, util: [] } : { P1: null, P2: null, C: null, '1B': null, '2B': null, '3B': null, SS: null, OF1: null, OF2: null, OF3: null, UTIL: null };
+            let totalSalary = 0;
+            let totalPoints = 0;
+            let totalOwnership = 0;
+
+            Object.keys(result).forEach(key => {
+                if (result[key] === 1) {
+                    const [name, slot] = key.split('_');
+                    const player = filteredData.find(p => p.baseName === name);
+                    if (player) {
+                        if (isShowdown) {
+                            if (slot === 'CPT') lineup.captain = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                            else lineup.util.push({ name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership });
+                        } else {
+                            if (slot === 'P') {
+                                if (!lineup.P1) lineup.P1 = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                                else if (!lineup.P2) lineup.P2 = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                            } else if (['1B','2B','3B','SS','C','UTIL'].includes(slot)) {
+                                lineup[slot] = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                            } else if (slot === 'OF') {
+                                if (!lineup.OF1) lineup.OF1 = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                                else if (!lineup.OF2) lineup.OF2 = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                                else if (!lineup.OF3) lineup.OF3 = { name: player.displayName, id: player.id, baseName: player.baseName, salary: player.salary, projectedFP: player.projectedFP, ownership: player.ownership };
+                            }
+                        }
+                        totalSalary += player.salary;
+                        totalPoints += player.projectedFP;
+                        totalOwnership += player.ownership;
+                    }
+                }
+            });
+
+            if (isShowdown && lineup.util.length < 5) lineup.util = lineup.util.concat(Array(5 - lineup.util.length).fill({ name: '', salary: 0, projectedFP: 0 }));
+            return { lineup, totalSalary, totalPoints, totalOwnership };
+        }
+
+        function updatePlayerCounts(lineup, playerCounts, isShowdown) {
+            if (isShowdown) {
+                if (lineup.lineup.captain) playerCounts[lineup.lineup.captain.name] = (playerCounts[lineup.lineup.captain.name] || 0) + 1;
+                lineup.lineup.util.forEach(f => {
+                    if (f.name) playerCounts[f.name] = (playerCounts[f.name] || 0) + 1;
+                });
+            } else {
+                Object.values(lineup.lineup).forEach(p => {
+                    if (p && p.name) playerCounts[p.name] = (playerCounts[p.name] || 0) + 1;
+                });
+            }
+        }
+
+        function updateExposureComparison(playerCounts, stacks, groups, isShowdown, position = '') {
+            const body = document.getElementById('exposureComparisonBody');
+            body.innerHTML = '';
+            let used = Object.keys(playerCounts).filter(k => playerCounts[k] > 0);
+            if (position) {
+                used = used.filter(name => {
+                    const p = filteredData.find(pp => pp.displayName === name);
+                    return p && p.positions.includes(position);
+                });
+            }
+            used.sort((a, b) => playerCounts[b] - playerCounts[a]);
+
+            used.forEach(name => {
+                const player = filteredData.find(p => p.displayName === name);
+                if (!player) return;
+                const count = playerCounts[name];
+                const exposure = (count / generatedLineups.length * 100).toFixed(2);
+                const row = `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${count}</td>
+                        <td>${exposure}%</td>
+                        <td>—</td>
+                        <td><input type="number" value="${player.minExposure}" onchange="updateExposure('${name}', 'min', this.value)"></td>
+                        <td><input type="number" value="${player.maxExposure}" onchange="updateExposure('${name}', 'max', this.value)"></td>
+                        <td>—</td>
+                        <td>—</td>
+                    </tr>`;
+                body.innerHTML += row;
+            });
+        }
+
+        function updateExposureTable(pos) {
+            exposurePositionFilter = pos;
+            const counts = {};
+            filteredData.forEach(p => counts[p.displayName] = 0);
+            generatedLineups.forEach(l => updatePlayerCounts(l, counts, selectedSlate.includes('Showdown Captain Mode')));
+            updateExposureComparison(counts, [], groupList, selectedSlate.includes('Showdown Captain Mode'), pos);
+        }
+
+        function getEligibleSlots(positions) {
+            const slots = new Set();
+            positions.forEach(pos => {
+                if (pos === 'P') slots.add('P');
+                else if (['C','1B','2B','3B','SS','OF','UTIL'].includes(pos)) slots.add(pos);
+            });
+            return Array.from(slots);
         }
 
         function downloadLineups() {
-            alert("Download feature is ready — full CSV export coming in the next update.");
+            const isShowdown = selectedSlate.includes('Showdown Captain Mode');
+            let csvRows = [];
+            if (isShowdown) {
+                csvRows.push(['CPT', 'UTIL1', 'UTIL2', 'UTIL3', 'UTIL4', 'UTIL5'].join(','));
+                generatedLineups.forEach(l => {
+                    const row = [l.lineup.captain.id, ...l.lineup.util.map(u => u.id)].join(',');
+                    csvRows.push(row);
+                });
+            } else {
+                csvRows.push(['P1', 'P2', 'C', '1B', '2B', '3B', 'SS', 'OF1', 'OF2', 'OF3', 'UTIL'].join(','));
+                generatedLineups.forEach(l => {
+                    const row = [
+                        l.lineup.P1 ? l.lineup.P1.id : '',
+                        l.lineup.P2 ? l.lineup.P2.id : '',
+                        l.lineup.C ? l.lineup.C.id : '',
+                        l.lineup['1B'] ? l.lineup['1B'].id : '',
+                        l.lineup['2B'] ? l.lineup['2B'].id : '',
+                        l.lineup['3B'] ? l.lineup['3B'].id : '',
+                        l.lineup.SS ? l.lineup.SS.id : '',
+                        l.lineup.OF1 ? l.lineup.OF1.id : '',
+                        l.lineup.OF2 ? l.lineup.OF2.id : '',
+                        l.lineup.OF3 ? l.lineup.OF3.id : '',
+                        l.lineup.UTIL ? l.lineup.UTIL.id : ''
+                    ].join(',');
+                    csvRows.push(row);
+                });
+            }
+            const csv = csvRows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'mlb_lineups.csv';
+            link.click();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('darkModeSwitch').checked = false;
-            fetchData();
-        });
+        function updatePositions() {
+            selectedPositions = Array.from(document.querySelectorAll('#positionMenu input:checked')).map(i => i.value);
+            updateDropdownButton('positionDropdown', selectedPositions, 'Positions');
+            updateTable();
+        }
+
+        function updateTeams() {
+            selectedTeams = Array.from(document.querySelectorAll('#teamMenu input:checked')).map(i => i.value);
+            updateDropdownButton('teamDropdown', selectedTeams, 'Teams');
+            updateTable();
+        }
+
+        function updatePlayers() {
+            selectedPlayers = Array.from(document.querySelectorAll('#playerList input:checked')).map(i => i.value);
+            updateDropdownButton('playerSearchDropdown', selectedPlayers, 'Players');
+            updateTable();
+        }
     </script>
 </body>
 </html>
