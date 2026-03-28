@@ -6,178 +6,67 @@
     <title>MLB DFS Lineup Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --transition: all 0.2s ease;
-        }
+        :root { --transition: all 0.2s ease; }
         body {
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            transition: var(--transition);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; transition: var(--transition);
         }
         body[data-theme="light"] {
-            --bg-color: #f8fafc;
-            --text-color: #1e293b;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --button-bg: #334155;
-            --button-text: #ffffff;
-            --button-hover: #1e293b;
-            --input-bg: #f1f5f9;
-            --table-head-bg: #f1f5f9;
-            --table-even-bg: #f8fafc;
-            --shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --bg-color: #f8fafc; --text-color: #1e293b; --card-bg: #ffffff;
+            --border-color: #e2e8f0; --button-bg: #334155; --button-text: #ffffff;
+            --button-hover: #1e293b; --input-bg: #f1f5f9; --table-head-bg: #f1f5f9;
+            --table-even-bg: #f8fafc; --shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         body[data-theme="dark"] {
-            --bg-color: #0f172a;
-            --text-color: #e2e8f0;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --button-bg: #475569;
-            --button-text: #e2e8f0;
-            --button-hover: #64748b;
-            --input-bg: #1e293b;
-            --table-head-bg: #1e293b;
-            --table-even-bg: #0f172a;
-            --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --bg-color: #0f172a; --text-color: #e2e8f0; --card-bg: #1e293b;
+            --border-color: #334155; --button-bg: #475569; --button-text: #e2e8f0;
+            --button-hover: #64748b; --input-bg: #1e293b; --table-head-bg: #1e293b;
+            --table-even-bg: #0f172a; --shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 1rem 0;
-        }
-        .info-icon {
-            cursor: pointer;
-            margin-left: 0.5rem;
-            font-size: 1rem;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1001;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: var(--card-bg);
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            width: 80%;
-            max-width: 800px;
-            border-radius: 8px;
-        }
-        .close {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        body { background-color: var(--bg-color); color: var(--text-color); }
+        h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0; }
+        .info-icon { cursor: pointer; margin-left: 0.5rem; font-size: 1rem; }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: var(--card-bg); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); width: 80%; max-width: 800px; border-radius: 8px; }
+        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .description, .filter-container, .table-container {
-            width: 90%;
-            max-width: 1000px;
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            box-shadow: var(--shadow);
+            width: 90%; max-width: 1000px; background: var(--card-bg); padding: 1rem; border-radius: 8px; margin: 1rem 0; box-shadow: var(--shadow);
         }
-        .filter-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            padding: 1.5rem;
-        }
+        .filter-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding: 1.5rem; }
         .dropdown-button {
-            padding: 0.75rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            text-align: left;
+            padding: 0.75rem; background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; cursor: pointer; width: 100%; text-align: left;
         }
         .dropdown-menu {
-            display: none;
-            position: absolute;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 1rem;
-            z-index: 10;
+            display: none; position: absolute; background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; max-height: 300px; overflow-y: auto; padding: 1rem; z-index: 10;
         }
         .dropdown-menu.show { display: block; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-        th, td {
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-        th {
-            background: var(--table-head-bg);
-            cursor: pointer;
-        }
-        th:hover {
-            background: var(--button-bg);
-            color: var(--button-text);
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th, td { padding: 0.5rem; border: 1px solid var(--border-color); text-align: center; }
+        th { background: var(--table-head-bg); cursor: pointer; }
+        th:hover { background: var(--button-bg); color: var(--button-text); }
         tr:nth-child(even) { background: var(--table-even-bg); }
         .dark-mode-container {
-            position: fixed;
-            top: 0.5rem;
-            right: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            position: fixed; top: 0.5rem; right: 0.5rem; display: flex; align-items: center; gap: 0.5rem;
         }
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            height: 20px;
-        }
+        .switch { position: relative; display: inline-block; width: 34px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 34px;
         }
         .slider:before {
-            position: absolute;
-            content: "";
-            height: 12px; width: 12px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+            position: absolute; content: ""; height: 12px; width: 12px;
+            left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
         }
         input:checked + .slider { background-color: #2196F3; }
         input:checked + .slider:before { transform: translateX(14px); }
         button {
-            padding: 0.5rem;
-            background: var(--button-bg);
-            color: var(--button-text);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+            padding: 0.5rem; background: var(--button-bg); color: var(--button-text);
+            border: none; border-radius: 6px; cursor: pointer;
         }
         button:hover { background: var(--button-hover); }
         .editable { cursor: pointer; }
@@ -207,7 +96,7 @@
 
     <div class="description">
         MLB DFS Lineup Builder — Powered by your CHEAT SHEET data.<br>
-        Select slate, filter players, adjust settings, then click "Run".
+        Select a slate → filter players → adjust settings → click <strong>Run</strong>.
     </div>
 
     <div class="filter-container">
@@ -233,7 +122,7 @@
         </div>
         <div>
             <label>Number of Lineups:</label>
-            <input type="number" id="numLineupsInput" value="20" min="1" max="500">
+            <input type="number" id="numLineupsInput" value="20" min="1" max="500" style="width:80px;">
         </div>
         <div>
             <button onclick="runLineupGeneration()" style="padding:10px 20px;">Run</button>
@@ -253,15 +142,17 @@
             <thead><tr id="lineupHeaderRow"></tr></thead>
             <tbody id="lineupTableBody"></tbody>
         </table>
-        <button onclick="downloadLineups()">Download CSV</button>
+        <button onclick="downloadLineups()">Download Lineups as CSV</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/javascript-lp-solver@1.0.0/dist/solver.global.js"></script>
     <script>
         let rawData = [];
         let filteredData = [];
         let selectedSlate = null;
         let availableSlates = [];
+        let generatedLineups = [];
 
         function toggleDarkMode() {
             const body = document.body;
@@ -269,27 +160,20 @@
             body.setAttribute('data-theme', newTheme);
         }
 
-        function openModal() {
-            document.getElementById('infoModal').style.display = 'block';
-        }
-        function closeModal() {
-            document.getElementById('infoModal').style.display = 'none';
-        }
-        function toggleDropdown(menuId) {
-            document.getElementById(menuId).classList.toggle('show');
-        }
+        function openModal() { document.getElementById('infoModal').style.display = 'block'; }
+        function closeModal() { document.getElementById('infoModal').style.display = 'none'; }
+        function toggleDropdown(menuId) { document.getElementById(menuId).classList.toggle('show'); }
 
         async function fetchData() {
-            console.log("Loading MLB CHEAT SHEET data...");
-            // Replace with your actual public CSV URL if you have one.
-            // For now, using placeholder data based on your document.
+            console.log("✅ Loading your MLB CHEAT SHEET data...");
+            // This is where your real CSV data would load. For now using sample from your document.
             rawData = [
                 {"Player Name":"Logan Gilbert","Position":"SP","Team":"SEA","Role":"Night","Salary":8500,"Projected FP":23.78},
                 {"Player Name":"Yoshinobu Yamamoto","Position":"SP","Team":"LAD","Role":"Night","Salary":9500,"Projected FP":21.58},
                 {"Player Name":"Tanner Bibee","Position":"SP","Team":"CLE","Role":"Night","Salary":7500,"Projected FP":19.07},
                 {"Player Name":"Cal Raleigh","Position":"C","Team":"SEA","Role":"Night","Salary":5800,"Projected FP":8.36},
                 {"Player Name":"Shohei Ohtani","Position":"1B/OF","Team":"LAD","Role":"Night","Salary":6500,"Projected FP":10.95},
-                // Add more rows from your CSV as needed
+                {"Player Name":"Jose Ramirez","Position":"3B","Team":"CLE","Role":"Night","Salary":5600,"Projected FP":7.77}
             ];
             availableSlates = ["Night"];
             selectedSlate = "Night";
@@ -309,7 +193,7 @@
                     <td>${row.Team}</td>
                     <td>${row.Position}</td>
                     <td>$${row.Salary}</td>
-                    <td>${row["Projected FP"]}</td>
+                    <td>${row["Projected FP"].toFixed(2)}</td>
                 </tr>
             `).join('');
         }
@@ -319,12 +203,12 @@
         }
 
         function runLineupGeneration() {
-            alert("✅ Lineup generation is ready in this version.\n\nFull MLB logic (stacking, Classic/Showdown, LP solver) will be added in the next update after you confirm this loads correctly.");
+            alert("✅ MLB DFS Lineup Builder is now fully loaded!\n\nFull lineup generation, stacking, Classic/Showdown support, and LP solver will be added in the next update after you confirm this version loads correctly on GitHub.");
             document.getElementById('lineupTableContainer').style.display = 'block';
         }
 
         function downloadLineups() {
-            alert("Download feature coming in next update.");
+            alert("Download feature ready in next update.");
         }
 
         document.addEventListener('DOMContentLoaded', () => {
