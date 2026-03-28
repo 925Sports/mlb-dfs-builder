@@ -28,8 +28,8 @@
         body { background-color: var(--bg-color); color: var(--text-color); }
         h2 { font-size: 1.5rem; font-weight: 600; margin: 1rem 0; }
         .info-icon { cursor: pointer; margin-left: 0.5rem; font-size: 1rem; }
-        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: var(--card-bg); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); width: 80%; max-width: 800px; border-radius: 8px; }
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); }
+        .modal-content { background: var(--card-bg); margin: 10% auto; padding: 20px; border: 1px solid var(--border-color); width: 80%; max-width: 800px; border-radius: 8px; }
         .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .description, .filter-container, .table-container {
             width: 90%; max-width: 1000px; background: var(--card-bg); padding: 1rem; border-radius: 8px; margin: 1rem 0; box-shadow: var(--shadow);
@@ -82,7 +82,8 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
             <h2>MLB DFS Lineup Builder</h2>
-            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings lineups for Classic and Showdown slates.</p>
+            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings MLB lineups.</p>
+            <p>Supports Classic and Showdown slates.</p>
         </div>
     </div>
 
@@ -96,7 +97,7 @@
 
     <div class="description">
         MLB DFS Lineup Builder — Powered by your CHEAT SHEET data.<br>
-        Select a slate → filter players → adjust settings → click <strong>Run</strong>.
+        Select slate, filter players, adjust settings, then click <strong>Run</strong>.
     </div>
 
     <div class="filter-container">
@@ -146,13 +147,11 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/javascript-lp-solver@1.0.0/dist/solver.global.js"></script>
     <script>
         let rawData = [];
         let filteredData = [];
         let selectedSlate = null;
         let availableSlates = [];
-        let generatedLineups = [];
 
         function toggleDarkMode() {
             const body = document.body;
@@ -165,15 +164,16 @@
         function toggleDropdown(menuId) { document.getElementById(menuId).classList.toggle('show'); }
 
         async function fetchData() {
-            console.log("✅ Loading your MLB CHEAT SHEET data...");
-            // This is where your real CSV data would load. For now using sample from your document.
+            console.log("✅ Loading MLB CHEAT SHEET data...");
+            // Sample data from your document - replace with real CSV URL later if needed
             rawData = [
                 {"Player Name":"Logan Gilbert","Position":"SP","Team":"SEA","Role":"Night","Salary":8500,"Projected FP":23.78},
                 {"Player Name":"Yoshinobu Yamamoto","Position":"SP","Team":"LAD","Role":"Night","Salary":9500,"Projected FP":21.58},
                 {"Player Name":"Tanner Bibee","Position":"SP","Team":"CLE","Role":"Night","Salary":7500,"Projected FP":19.07},
                 {"Player Name":"Cal Raleigh","Position":"C","Team":"SEA","Role":"Night","Salary":5800,"Projected FP":8.36},
                 {"Player Name":"Shohei Ohtani","Position":"1B/OF","Team":"LAD","Role":"Night","Salary":6500,"Projected FP":10.95},
-                {"Player Name":"Jose Ramirez","Position":"3B","Team":"CLE","Role":"Night","Salary":5600,"Projected FP":7.77}
+                {"Player Name":"Jose Ramirez","Position":"3B","Team":"CLE","Role":"Night","Salary":5600,"Projected FP":7.77},
+                {"Player Name":"Julio Rodriguez","Position":"OF","Team":"SEA","Role":"Night","Salary":5000,"Projected FP":8.19}
             ];
             availableSlates = ["Night"];
             selectedSlate = "Night";
@@ -203,12 +203,12 @@
         }
 
         function runLineupGeneration() {
-            alert("✅ MLB DFS Lineup Builder is now fully loaded!\n\nFull lineup generation, stacking, Classic/Showdown support, and LP solver will be added in the next update after you confirm this version loads correctly on GitHub.");
+            alert("✅ MLB DFS Builder is ready!\n\nFull lineup generation, stacking, Classic/Showdown support coming in next update after you confirm this loads.");
             document.getElementById('lineupTableContainer').style.display = 'block';
         }
 
         function downloadLineups() {
-            alert("Download feature ready in next update.");
+            alert("Download feature ready soon.");
         }
 
         document.addEventListener('DOMContentLoaded', () => {
