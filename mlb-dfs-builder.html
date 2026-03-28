@@ -132,6 +132,10 @@
             background: var(--table-head-bg);
             cursor: pointer;
         }
+        th:hover {
+            background: var(--button-bg);
+            color: var(--button-text);
+        }
         tr:nth-child(even) { background: var(--table-even-bg); }
         .dark-mode-container {
             position: fixed;
@@ -189,8 +193,8 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
             <h2>How to Use the MLB DFS Lineup Builder</h2>
-            <p>This tool helps build optimal DraftKings MLB lineups using your CHEAT SHEET data.</p>
-            <p>Supports both Classic and Showdown slates.</p>
+            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings MLB lineups.</p>
+            <p>Supports Classic and Showdown slates.</p>
         </div>
     </div>
 
@@ -203,19 +207,38 @@
     </div>
 
     <div class="description">
-        MLB DFS Lineup Builder — Uses your CHEAT SHEET data. Select a slate, filter players, adjust settings, and click Run.
+        MLB DFS Lineup Builder - Uses your CHEAT SHEET data.<br>
+        Select a slate, filter players, adjust settings, then click "Run".
     </div>
 
     <div class="filter-container">
-        <!-- Your filters will go here once we confirm the GitHub link works -->
         <div>
-            <label>Slate:</label>
-            <div class="dropdown-container">
-                <button class="dropdown-button" id="slateDropdown" onclick="toggleDropdown('slateMenu')">Select Slate</button>
-                <div id="slateMenu" class="dropdown-menu"></div>
-            </div>
+            <label for="slateDropdown">Slate:</label>
+            <button class="dropdown-button" id="slateDropdown" onclick="toggleDropdown('slateMenu')">Select Slate</button>
+            <div id="slateMenu" class="dropdown-menu"></div>
         </div>
-        <!-- Add more filters as needed -->
+        <div>
+            <label for="positionDropdown">Position:</label>
+            <button class="dropdown-button" id="positionDropdown" onclick="toggleDropdown('positionMenu')">Select Positions</button>
+            <div id="positionMenu" class="dropdown-menu"></div>
+        </div>
+        <div>
+            <label for="teamDropdown">Team:</label>
+            <button class="dropdown-button" id="teamDropdown" onclick="toggleDropdown('teamMenu')">Select Teams</button>
+            <div id="teamMenu" class="dropdown-menu"></div>
+        </div>
+        <div>
+            <label>Max Player Exposure (%):</label>
+            <input type="range" id="maxExposureSlider" min="0" max="100" value="100" oninput="updateMaxExposure()">
+            <span id="maxExposureValue">100%</span>
+        </div>
+        <div>
+            <label>Number of Lineups:</label>
+            <input type="number" id="numLineupsInput" value="20" min="1" max="500" style="width: 80px;">
+        </div>
+        <div>
+            <button onclick="runLineupGeneration()" style="padding: 0.75rem 1.5rem;">Run</button>
+        </div>
     </div>
 
     <div class="table-container">
@@ -235,9 +258,12 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="https://unpkg.com/javascript-lp-solver@1.0.0/dist/solver.global.js"></script>
     <script>
-        // ================== DARK MODE FIX (No localStorage) ==================
+        let rawData = [];
+        let filteredData = [];
+        let selectedSlate = null;
+        let availableSlates = [];
+
         function toggleDarkMode() {
             const body = document.body;
             const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
@@ -254,13 +280,44 @@
             document.getElementById(menuId).classList.toggle('show');
         }
 
-        // ================== PLACEHOLDER - WILL BE FULLY UPDATED AFTER GITHUB REVIEW ==================
-        console.log("MLB DFS Builder loaded - Ready for full implementation after GitHub review.");
-
-        // Basic fetch placeholder (you can expand this later)
         async function fetchData() {
-            console.log("Fetching MLB data... (GitHub version)");
-            // Your full fetchData + updateSlate + runLineupGeneration logic will go here
+            const url = "https://raw.githubusercontent.com/925Sports/mlb-dfs-builder/refs/heads/main/mlb-dfs-builder.html"; // Placeholder - use your actual CHEAT SHEET CSV URL if available
+            console.log("Loading MLB data...");
+            // For now, using placeholder data. Replace with your actual CSV URL later.
+            rawData = [
+                { "Player Name": "Shohei Ohtani", "Position": "DH/OF", "Team": "LAD", "Role": "Night", "Salary": 6500, "Projected FP": 10.95 },
+                { "Player Name": "Logan Gilbert", "Position": "SP", "Team": "SEA", "Role": "Night", "Salary": 8500, "Projected FP": 23.78 },
+                // Add more rows from your CSV as needed
+            ];
+            availableSlates = ["Night"];
+            selectedSlate = "Night";
+            updateSlate();
+        }
+
+        function updateSlate() {
+            console.log("Slate selected:", selectedSlate);
+            updateTable();
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = rawData.map(row => `
+                <tr>
+                    <td>${row["Player Name"]}</td>
+                    <td>${row.Team}</td>
+                    <td>${row.Position}</td>
+                    <td>$${row.Salary}</td>
+                    <td>${row["Projected FP"]}</td>
+                </tr>
+            `).join('');
+        }
+
+        function runLineupGeneration() {
+            alert("Lineup generation coming soon! Full logic will be added after GitHub review.");
+        }
+
+        function downloadLineups() {
+            alert("Download functionality coming soon.");
         }
 
         document.addEventListener('DOMContentLoaded', () => {
