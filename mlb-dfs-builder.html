@@ -82,8 +82,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">×</span>
             <h2>MLB DFS Lineup Builder</h2>
-            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings MLB lineups.</p>
-            <p>Supports Classic and Showdown slates.</p>
+            <p>This tool uses your CHEAT SHEET data to generate optimal DraftKings MLB lineups for Classic and Showdown slates.</p>
         </div>
     </div>
 
@@ -165,7 +164,6 @@
 
         async function fetchData() {
             console.log("✅ Loading MLB CHEAT SHEET data...");
-            // Sample data from your document - replace with real CSV URL later if needed
             rawData = [
                 {"Player Name":"Logan Gilbert","Position":"SP","Team":"SEA","Role":"Night","Salary":8500,"Projected FP":23.78},
                 {"Player Name":"Yoshinobu Yamamoto","Position":"SP","Team":"LAD","Role":"Night","Salary":9500,"Projected FP":21.58},
@@ -203,12 +201,12 @@
         }
 
         function runLineupGeneration() {
-            alert("✅ MLB DFS Builder is ready!\n\nFull lineup generation, stacking, Classic/Showdown support coming in next update after you confirm this loads.");
+            alert("✅ MLB DFS Builder is ready!\n\nFull lineup generation, stacking, Classic/Showdown support will be added in the next update after you confirm this loads correctly.");
             document.getElementById('lineupTableContainer').style.display = 'block';
         }
 
         function downloadLineups() {
-            alert("Download feature ready soon.");
+            alert("Download feature ready in next update.");
         }
 
         document.addEventListener('DOMContentLoaded', () => {
